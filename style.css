@@ -1,0 +1,296 @@
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    height: 100vh;
+    background: linear-gradient(135deg, #060818, #13173C, #090D33);
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: 80px 1fr;
+    grid-template-areas: 
+        "leftbar title"
+        "leftbar main";
+    font-family: sans-serif;
+}
+
+header {
+    grid-area: title;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+main {
+    grid-area: main;
+    padding: 30px;
+    position: relative;
+}
+
+h2 {
+    color: white;
+    font-size: 14px;
+}
+
+.leftbar {
+    grid-area: leftbar;
+    position: relative;
+    padding: 40px;
+}
+
+.leftbar::before {
+    content: "";
+    position: absolute;
+    right: 0; 
+    height: 80%;
+    top: 10%;
+    width: 2px;
+    background-color: #929292; 
+    opacity: 50%;
+}
+
+label {
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.yearInput {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Conteneur pour le select et le chevron */
+.select-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+select {
+    background: #080B2B;
+    color: grey;
+    padding: 4px 30px 4px 10px;
+    border-radius: 4px;
+    margin-top: 2px;
+    appearance: none; 
+    width: 100%;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    transition: ease-in-out 0.3s ;
+}
+input{
+    padding: 4px 30px 4px 10px;
+    border-radius: 4px;
+    background-color: #080B2B;
+    margin-top: 2px;
+    appearance: none;
+    border: 1px solid #ccc;
+    transition: ease-in-out 0.3s ;
+    color: white;
+}
+
+
+#ville-options {
+    height: 150px; 
+    overflow-y: auto;
+      
+}
+
+
+
+select.touched {
+    color: white;
+}
+
+option{
+    color: grey;
+}
+
+
+.chevron {
+    position: absolute;
+    top: 50%;
+    right: 10px; 
+    transform: translateY(-50%);
+    pointer-events: none; 
+    width: 20px;
+    height: 20px;
+}
+
+
+.inputs{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cercle{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: white;
+    border: 4px solid #929292;
+}
+
+
+.typesCrimesInput img{
+    width: 30px;
+}
+
+
+.cercle-container{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.textLegend{
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.typesCrimesInput{
+    margin-top: 14px;
+}
+
+.typesCrimesInput2{
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.separator{
+    margin-top: 16px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #A8385C;
+    height: 2px;
+    display: block;
+}
+
+.comparaisonInput{
+    margin-top: 16px;
+
+}
+.barreChoix{
+    margin-top: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.barreC{
+    padding: 10px;
+    background-color: #A4A2A2;
+    cursor: pointer;
+    transition: ease-in-out 0.2s;
+    
+
+}
+
+.phantomChoix{
+    background-color: #A8385C;
+    color: white;
+
+}
+
+.inputDep{
+    display: none;
+}
+
+.inputComm{
+    margin-top: 4px;
+    display: none;
+    
+}
+
+.phantom2{
+    margin-top: 4px;
+    display: block;
+    
+}
+
+
+h1{
+    color: #A8385C;
+    padding: 8px;
+    border-radius: 6px;
+    background-color: white;
+}
+
+
+
+
+
+
+
+
+
+
+.ou{
+    color: #A8385C;
+    font-weight: bold;
+}
+
+
+
+.choixVilleouDep{
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+
+#map {
+    width: 100%;
+    height: 100%; /* Vous pouvez ajuster la hauteur selon vos besoins */
+    border-radius: 12px;
+}
+
+.custom-div {
+    background-color: white;
+    color: #A8385C;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    position: absolute;
+    top: 0px;  
+    right: 0px;    
+    z-index: 1000; 
+  }
+
+
+
+  .custom-div2 {
+    background-color: white;
+    color: #A8385C;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    position: absolute;
+    bottom: 0px;  
+    left: 0px;    
+    z-index: 1000; 
+  }
+
+
+  .custom-div3 {
+    background-color: white;
+    color: #A8385C;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    position: absolute;
+    bottom: 0px;  
+    right: 0px;    
+    z-index: 1000; 
+  }

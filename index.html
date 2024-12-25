@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projet</title>
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body>
+    <header>
+        <h1>Datavisualisation : Les crimes en France</h1>
+    </header>
+
+
+
+
+
+
+
+
+
+
+    <div class="leftbar">
+        <h2>Filtre</h2>
+
+        <div class="inputs">
+            <div class="yearInput">
+                <label for="years">Par année :</label>
+                <div class="select-container">
+                    <select name="years" id="years">
+                        <option value="">Choisissez une date</option>
+                        <option value="16">2016</option>
+                        <option value="17">2017</option>
+                        <option value="18">2018</option>
+                    </select>
+
+                    <img src="./images/chevron.svg" alt="Chevron" class="chevron">
+                </div>
+                
+
+            </div>
+
+            
+    
+            <div class="choixVilleouDep">
+                <div class="departementInput">
+                    <label for="dep">Par département :</label>
+                    <div class="select-container">
+                        <select name="dep" id="dep">
+                            <option value="">Entrez un numéro de département</option>
+                        </select>
+                        <img src="./images/chevron.svg" alt="Chevron" class="chevron">
+                    </div>
+                </div>
+    
+                <div class="ou">
+                    Ou
+                </div>
+                <div class="villeInput">
+                    <label for="ville">Par ville :</label>
+                    <div class="select-container">
+                        <input type="text" name="ville" id="ville" list="ville-options" placeholder="Entrez une ville">
+                        <datalist id="ville-options"></datalist>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" id="buttonsubmit">Submit</button>            
+
+        </div>
+
+
+            <div class="typesCrimesInput">
+                
+                <label>Types de crimes :</label>
+                <div class="typesCrimesInput2">
+                    <div class="cercle-container">
+                        <div class="cercle">
+                            <img src="./images/legendes/drugs-drug-svgrepo-com.svg" alt="">
+                        </div>
+                        <p class="textLegend">Drogues</p>
+                    </div>
+
+                    <div class="cercle-container">
+                        <div class="cercle">
+                            <img src="./images/legendes/sexual-harassment-teacher-svgrepo-com.svg" alt="">
+                        </div>
+                        <p class="textLegend">Violences sexuelles</p>
+                    </div>
+
+                    <div class="cercle-container">
+                        <div class="cercle">
+                            <img src="./images/legendes/hammer-drop-svgrepo-com.svg" alt="">
+                        </div>
+                        <p class="textLegend">Destructions</p>
+                    </div>
+
+                    <div class="cercle-container">
+                        <div class="cercle">
+                            <img src="./images/legendes/theft-crime-steal-thief-svgrepo-com.svg" alt="">
+                        </div>
+                        <p class="textLegend">Vols</p>
+                    </div>
+
+                    <div class="cercle-container">
+                        <div class="cercle">
+                            <img src="./images/legendes/gun-crime-svgrepo-com.svg" alt="">
+                        </div>
+                        <p class="textLegend">Violences avec armes</p>
+                    </div>
+
+                    <div class="cercle-container">
+                        <div class="cercle">
+                            <img src="./images/legendes/violent-criminal-svgrepo-com.svg" alt="">
+                        </div>
+                        <p class="textLegend">Violences sans armes</p>
+                    </div>
+                </div>
+                
+            </div>
+
+
+            <div class="separator"></div>
+
+            <div class="comparaisonInput">
+                <label>Comparaison par :</label>
+                <div class="barreChoix">
+                    <div class="barreC barreC1" id="barreC1">Communes</div>
+                    <div class="barreC barreC2">Départements</div>
+                </div>
+                <div class="inputComm" id="inputComm">
+                    <label for="">Communes</label>
+                    <input type="text" id="communes" list="communes-options">
+                    <datalist id="communes-options"></datalist>
+                </div>
+
+                <div class="inputDep" id="inputDep">
+                    <label for="">Départements</label>
+                    <input type="text">
+                </div>
+                <button type="submit" id="buttonsubmit2">Submit2</button>            
+
+
+            </div>
+
+        
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <main>
+        <div id="map">
+            
+        </div>
+        
+    </main>
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+    <script src="./data.js"></script>
+    <script src="./front.js"></script>
+</body>
+</html>

@@ -1,19 +1,19 @@
-const selectElement = document.getElementById('years');
-const selectElement2 = document.getElementById('dep');
-const selectElement3 = document.getElementById('ville');
+const selectYears = document.getElementById('years');
+const selectDepartement = document.getElementById('departement');
+const selectVille = document.getElementById('ville');
 
-selectElement.addEventListener('focus', () => {
-    selectElement.classList.add('touched');
+selectYears.addEventListener('focus', () => {
+    selectYears.classList.add('touched');
 });
 
 
-selectElement2.addEventListener('focus', () => {
-    selectElement2.classList.add('touched');
+selectDepartement.addEventListener('focus', () => {
+    selectDepartement.classList.add('touched');
 });
 
 
-selectElement3.addEventListener('focus', () => {
-    selectElement3.classList.add('touched');
+selectVille.addEventListener('focus', () => {
+    selectVille.classList.add('touched');
 });
 
 let barreC1 = document.getElementById("barreC1");
@@ -46,7 +46,7 @@ barreC2.addEventListener('click', () => {
     inputComm.classList.remove("phantom2"); // Retirer "inputDep" si "C2" est choisi
 });
 
-let select = document.getElementById("dep");
+let select = document.getElementById("departement");
 
 for (let i = 1; i <= 96; i++) {
     let option = document.createElement("option");

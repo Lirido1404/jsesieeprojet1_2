@@ -170,7 +170,7 @@ let nomVille = "";
 let annee = "";
 let nomCommune = "";
 
-const selectDep = document.getElementById("dep");
+const selectDep = document.getElementById("departement");
 const villeInput = document.getElementById('ville');
 const communesInput = document.getElementById('communes');
 const communesOptions = document.getElementById('communes-options');

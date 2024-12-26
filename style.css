@@ -1,3 +1,11 @@
+:root {
+    --white: white;
+    --pink: #A8385C;
+    --lightGrey: #ccc;
+    --grey: grey;
+    --bg: #080B2B;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -7,7 +15,7 @@ body {
     display: grid;
     grid-template-columns: 300px 1fr;
     grid-template-rows: 80px 1fr;
-    grid-template-areas: 
+    grid-template-areas:
         "leftbar title"
         "leftbar main";
     font-family: sans-serif;
@@ -27,7 +35,7 @@ main {
 }
 
 h2 {
-    color: white;
+    color: var(--white);
     font-size: 14px;
 }
 
@@ -40,16 +48,16 @@ h2 {
 .leftbar::before {
     content: "";
     position: absolute;
-    right: 0; 
+    right: 0;
     height: 80%;
     top: 10%;
     width: 2px;
-    background-color: #929292; 
+    background-color: var(--grey);
     opacity: 50%;
 }
 
 label {
-    color: white;
+    color: var(--white);
     font-weight: bold;
     font-size: 16px;
 }
@@ -67,118 +75,111 @@ label {
 }
 
 select {
-    background: #080B2B;
-    color: grey;
+    background: var(--bg);
+    color: var(--grey);
     padding: 4px 30px 4px 10px;
     border-radius: 4px;
     margin-top: 2px;
-    appearance: none; 
+    appearance: none;
     width: 100%;
-    border: 1px solid #ccc;
+    border: 1px solid var(--lightGrey);
     font-size: 16px;
-    transition: ease-in-out 0.3s ;
+    transition: ease-in-out 0.3s;
 }
-input{
+
+input {
     padding: 4px 30px 4px 10px;
     border-radius: 4px;
     background-color: #080B2B;
     margin-top: 2px;
     appearance: none;
-    border: 1px solid #ccc;
-    transition: ease-in-out 0.3s ;
-    color: white;
+    border: 1px solid var(--lightGrey);
+    transition: ease-in-out 0.3s;
+    color: var(--white);
 }
-
 
 #ville-options {
-    height: 150px; 
+    height: 150px;
     overflow-y: auto;
-      
 }
-
-
 
 select.touched {
-    color: white;
+    color: var(--white);
 }
 
-option{
-    color: grey;
+option {
+    color: var(--grey);
 }
-
 
 .chevron {
     position: absolute;
     top: 50%;
-    right: 10px; 
+    right: 10px;
     transform: translateY(-50%);
-    pointer-events: none; 
+    pointer-events: none;
     width: 20px;
     height: 20px;
 }
 
-
-.inputs{
+.inputs {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.cercle{
+.cercle {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 45px;
     height: 45px;
     border-radius: 50%;
-    background-color: white;
-    border: 4px solid #929292;
+    background-color: var(--white);
+    border: 4px solid var(--grey);
 }
 
-
-.typesCrimesInput img{
+.typesCrimesInput img {
     width: 30px;
 }
 
-
-.cercle-container{
+.cercle-container {
     display: flex;
     align-items: center;
     gap: 15px;
 }
 
-.textLegend{
-    color: white;
+.textLegend {
+    color: var(--white);
     font-weight: bold;
     font-size: 14px;
 }
 
-.typesCrimesInput{
+.typesCrimesInput {
     margin-top: 14px;
 }
 
-.typesCrimesInput2{
+.typesCrimesInput2 {
     margin-top: 8px;
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
 
-.separator{
+.separator {
     margin-top: 16px;
     width: 80%;
     margin-left: auto;
     margin-right: auto;
-    background-color: #A8385C;
+    background-color: var(--pink);
     height: 2px;
     display: block;
 }
 
-.comparaisonInput{
+.comparaisonInput {
     margin-top: 16px;
-
 }
-.barreChoix{
+
+.barreChoix {
     margin-top: 2px;
     display: flex;
     justify-content: center;
@@ -187,110 +188,89 @@ option{
     overflow: hidden;
 }
 
-.barreC{
+.barreC {
     padding: 10px;
-    background-color: #A4A2A2;
+    background-color: var(--grey);
     cursor: pointer;
     transition: ease-in-out 0.2s;
-    
-
 }
 
-.phantomChoix{
-    background-color: #A8385C;
-    color: white;
-
+.phantomChoix {
+    background-color: var(--pink);
+    color: var(--white);
 }
 
-.inputDep{
+.inputDep {
     display: none;
 }
 
-.inputComm{
+.inputComm {
     margin-top: 4px;
     display: none;
-    
 }
 
-.phantom2{
+.phantom2 {
     margin-top: 4px;
     display: block;
-    
 }
 
-
-h1{
-    color: #A8385C;
+h1 {
+    color: var(--pink);
     padding: 8px;
     border-radius: 6px;
-    background-color: white;
+    background-color: var(--white);
 }
 
-
-
-
-
-
-
-
-
-
-.ou{
-    color: #A8385C;
+.ou {
+    color: var(--pink);
     font-weight: bold;
 }
 
-
-
-.choixVilleouDep{
+.choixVilleouDep {
     margin-top: 16px;
     display: flex;
     flex-direction: column;
     gap: 3px;
 }
 
-
 #map {
     width: 100%;
-    height: 100%; /* Vous pouvez ajuster la hauteur selon vos besoins */
+    height: 100%;
     border-radius: 12px;
 }
 
 .custom-div {
-    background-color: white;
-    color: #A8385C;
+    background-color: var(--white);
+    color: var(--pink);
     padding: 10px;
     border-radius: 5px;
     font-size: 16px;
     position: absolute;
-    top: 0px;  
-    right: 0px;    
-    z-index: 1000; 
-  }
+    top: 0px;
+    right: 0px;
+    z-index: 1000;
+}
 
-
-
-  .custom-div2 {
-    background-color: white;
-    color: #A8385C;
+.custom-div2 {
+    background-color: var(--white);
+    color: var(--pink);
     padding: 10px;
     border-radius: 5px;
     font-size: 16px;
     position: absolute;
-    bottom: 0px;  
-    left: 0px;    
-    z-index: 1000; 
-  }
+    bottom: 0px;
+    left: 0px;
+    z-index: 1000;
+}
 
-
-  .custom-div3 {
-    background-color: white;
-    color: #A8385C;
+.custom-div3 {
+    background-color: var(--white);
+    color: var(--pink);
     padding: 10px;
     border-radius: 5px;
     font-size: 16px;
     position: absolute;
-    bottom: 0px;  
-    right: 0px;    
-    z-index: 1000; 
-  }
+    bottom: 0px;
+    right: 0px;
+    z-index: 1000;
+}

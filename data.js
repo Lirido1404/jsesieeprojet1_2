@@ -9,16 +9,11 @@ const lmap = L.map('map', {
     layers: [layer]
 });
 
-
-
-
 const createNbrDashboard = (data) => {
-
     let customDiv = L.control({ position: 'topright' });
 
     customDiv.onAdd = function (map) {
         let div = L.DomUtil.create('div', 'custom-div');
-
         let arr = [
             data.nbrDestructions,
             data.nbrDrugs,
@@ -28,7 +23,6 @@ const createNbrDashboard = (data) => {
             data.nbrSteal,
             data.nbrViolence
         ];
-
         let crimeTypes = [
             'Destructions',
             'Drogues',
@@ -38,33 +32,18 @@ const createNbrDashboard = (data) => {
             'Vols',
             'Violences'
         ];
-
-        let maxCount = arr.reduce((acc,val)=>{
-            return Math.max(acc,val);
+        let maxCount = arr.reduce((acc, val) => {
+            return Math.max(acc, val);
         })
-
         let maxIndex = arr.indexOf(maxCount);
-
         let mostFrequentCrime = crimeTypes[maxIndex];
-
         div.innerHTML = `Nombre total de crimes : ${data.nbrTTcrimes}<br>
         Crime le plus perpétré : ${mostFrequentCrime} (${maxCount} cas)`;
-
         return div;
     };
 
     customDiv.addTo(lmap);
 };
-
-
-
-
-
-
-
-
-
-
 
 const createNbrDashboard2 = (tauxPourMilles) => {
     // Vérifie si une ancienne div avec l'ID 'dashboardCanvas' existe et la supprime
@@ -72,18 +51,15 @@ const createNbrDashboard2 = (tauxPourMilles) => {
     if (existingCanvas) {
         existingCanvas.parentElement.remove(); // Supprime la div contenant le canvas
     }
-
     let customDiv = L.control({ position: 'bottomleft' });
 
     customDiv.onAdd = function (map) {
         let div = L.DomUtil.create('div', 'custom-div2');
-
         // Ajout de la balise canvas dans le contenu HTML
         div.innerHTML = `
             <canvas id="dashboardCanvas" width="700" height="350" style="border:1px solid #000000;">
             </canvas>
         `;
-
         return div;
     };
 
@@ -148,15 +124,6 @@ const createNbrDashboard2 = (tauxPourMilles) => {
     }, 100); // Attendre un moment pour que le canvas soit disponible
 };
 
-
-
-
-
-
-
-
-
-
 const createListCommunesCRUD = (data) => {
     // Supprimer la div si elle existe déjà
     const existingCanvas = document.querySelector('.custom-div3');
@@ -184,7 +151,6 @@ const createListCommunesCRUD = (data) => {
                 arrNomsCommunes = arrNomsCommunes.filter(commune => commune !== communeData.commune);
                 console.log("Ville supprimée:", communeData.commune);
                 console.log("ArrNomsCommunes mis à jour:", arrNomsCommunes);
-                
                 // Après suppression, resoumettre le graphique
                 buttonSubmit2.click(); // Déclenche le clique sur buttonSubmit2 pour re-créer le graphique
             };
@@ -196,18 +162,6 @@ const createListCommunesCRUD = (data) => {
 
     customDiv.addTo(lmap);  // Ajouter le contrôle à la carte
 };
-
-
-
-
-
-
-
-
-
-
-
-
 
 const markersGroup = L.layerGroup().addTo(lmap);
 
@@ -236,7 +190,6 @@ villeInput.addEventListener('input', async (e) => {
     dep = "";
     selectDep.value = "";
     selectDep.disabled = Boolean(nomVille);
-
     if (nomVille.length > 2) {
         const communes = await fetchCommunes();
         const filteredVilles = filterCommunesByName(communes, nomVille);
@@ -248,7 +201,6 @@ villeInput.addEventListener('input', async (e) => {
 
 communesInput.addEventListener('input', async (e) => {
     nomCommune = e.target.value;
-
     if (nomCommune.length > 2) {
         const communes = await fetchCommunes();
         const filteredCommunes = filterCommunesByName(communes, nomCommune);
@@ -282,7 +234,7 @@ const filterCommunesByName = (communes, name) => {
     const upperName = name.toUpperCase();
     return communes
         .filter(commune => commune.nom_commune_postal.includes(upperName))
-        .filter((value, index, self) => 
+        .filter((value, index, self) =>
             index === self.findIndex(t => t.nom_commune_postal === value.nom_commune_postal)
         );
 };
@@ -298,10 +250,9 @@ const updateVilleOptions = (villes) => {
 
 const updateCommuneOptions = (communes) => {
     communesOptions.innerHTML = ''; // Efface les anciennes options
-
     communes.forEach(commune => {
         const option = document.createElement('option');
-        option.value = commune.nom_commune_postal; // Vous pouvez aussi choisir un autre champ de la commune si nécessaire
+        option.value = commune.nom_commune_postal;
         communesOptions.appendChild(option);
     });
 };
@@ -336,7 +287,6 @@ const addMarkers = (data, coordinates) => {
     data.forEach(crime => {
         const randomLat = coordinates.lat + (Math.random() - 0.5) * 0.4;
         const randomLng = coordinates.lng + (Math.random() - 0.5) * 0.4;
-
         const iconType = iconMapping[crime.classe] || 'other';
         const customIcon = L.icon({
             iconUrl: iconPaths[iconType],
@@ -344,9 +294,7 @@ const addMarkers = (data, coordinates) => {
             iconAnchor: [16, 32],
             popupAnchor: [0, -32]
         });
-
         const marker = L.marker([randomLat, randomLng], { icon: customIcon });
-
         const tooltipContent = `<p class="test2">${crime.classe}</p>`;
         marker.bindTooltip(tooltipContent);
         marker.addTo(markersGroup);
@@ -355,18 +303,15 @@ const addMarkers = (data, coordinates) => {
 
 submitButton.addEventListener('click', async () => {
     markersGroup.clearLayers();
-
     const communes = await fetchCommunes();
     const crimes = await fetchCrimes();
-
     let coordinates = initialCoordinates;
     let filteredCrimes;
-
     if (nomVille) {
         const selectedCommune = communes.find(c => c.nom_commune_postal === nomVille.toUpperCase());
         if (selectedCommune) {
             coordinates = { lat: parseFloat(selectedCommune.latitude), lng: parseFloat(selectedCommune.longitude) };
-            filteredCrimes = crimes.filter(c => 
+            filteredCrimes = crimes.filter(c =>
                 parseInt(c.CODGEO_2024) === parseInt(selectedCommune.code_commune_INSEE) &&
                 (!annee || parseInt(c.annee) === parseInt(annee))
             );
@@ -424,67 +369,43 @@ submitButton.addEventListener('click', async () => {
         }
     });
 
-
     nbrTTcrimes = nbrDestructions + nbrDrugs + nbrGun + nbrOther + nbrSexualharassment + nbrSteal + nbrViolence;
 
     const data = {
-        nbrTTcrimes : nbrTTcrimes,
-        nbrDestructions : nbrDestructions,
-        nbrDrugs : nbrDrugs,
-        nbrGun : nbrGun,
+        nbrTTcrimes: nbrTTcrimes,
+        nbrDestructions: nbrDestructions,
+        nbrDrugs: nbrDrugs,
+        nbrGun: nbrGun,
         nbrOther: nbrOther,
         nbrSexualharassment: nbrSexualharassment,
-        nbrSteal : nbrSteal,
-        nbrViolence : nbrViolence
-
+        nbrSteal: nbrSteal,
+        nbrViolence: nbrViolence
     }
 
-
     createNbrDashboard(data);
-    
-
-
-
 });
-
-
-
-
-
-
-
-
 
 let buttonSubmit2 = document.getElementById('buttonsubmit2');
 
 let arrNomsCommunes = [];
 buttonSubmit2.addEventListener('click', async () => {
-
     arrNomsCommunes.push(nomCommune);
     console.log(arrNomsCommunes);
     let annees = [16, 17];
-
     const communes = await fetchCommunes();
     const crimes = await fetchCrimes();
-
     let tauxPourMilles = [];
-
     if (nomCommune) {
         arrNomsCommunes.forEach((el2) => { // Utilise 'el2' pour représenter chaque commune
             console.log(el2);
-        
             let tauxPourMilleCommune = [];
-        
             annees.forEach((uneannee) => {
                 const selectedCommune = communes.find(c => c.nom_commune_postal === el2.toUpperCase()); // Utilise 'el2' au lieu de 'nomCommune'
-        
-                const filteredCrimes = crimes.filter(c => 
+                const filteredCrimes = crimes.filter(c =>
                     parseInt(c.CODGEO_2024) === parseInt(selectedCommune.code_commune_INSEE) && parseInt(c.annee) === uneannee
                 );
-        
                 let nbrCrimes = filteredCrimes.length;
                 let nbrPOP = filteredCrimes.length > 0 ? filteredCrimes[0].POP : 0;
-        
                 if (nbrPOP > 0) {
                     let tauxPourMille = (nbrCrimes / nbrPOP) * 1000;
                     tauxPourMilleCommune.push(tauxPourMille);
@@ -492,7 +413,7 @@ buttonSubmit2.addEventListener('click', async () => {
                     tauxPourMilleCommune.push(0); // Si pas de données de population ou de crimes
                 }
             });
-        
+
             tauxPourMilles.push({
                 commune: el2, // Utilise 'el2' ici pour conserver le bon nom de commune
                 taux: tauxPourMilleCommune
@@ -503,5 +424,4 @@ buttonSubmit2.addEventListener('click', async () => {
     createListCommunesCRUD(tauxPourMilles);
 
     console.log(tauxPourMilles);
-
 });

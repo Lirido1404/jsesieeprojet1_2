@@ -1,1 +1,4 @@
-crimedata.csv
+data/crimedata.csv
+data/crimedata_cleaned.csv
+data/codecommunes.csv
+data/regions/*

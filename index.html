@@ -24,22 +24,26 @@
         <h2>Filtre</h2>
 
         <div class="inputs">
-            <div class="yearInput">
-                <label for="years">Par année :</label>
 
-                <div class="select-container">
-                    <select name="years" id="years">
-                        <option value="">Choisissez une date</option>
-                        <option value="16">2016</option>
-                        <option value="17">2017</option>
-                        <option value="18">2018</option>
-                    </select>
-                    <img src="./images/chevron.svg" alt="Chevron" class="chevron">
+
+
+
+
+                <div class="regionsInput">
+                    <label for="departement">Par région :</label>
+                    <div class="select-container">
+                        <select name="regions" id="regions">
+                            <option value="">Entrez un numéro de région</option>
+                            <option value="1">test1</option>
+                            <option value="2">test2</option>
+
+
+                        </select>
+                        <img src="./images/chevron.svg" alt="Chevron" class="chevron">
+                    </div>
                 </div>
-            </div>
 
-            <div class="choixVilleouDep">
-                <div class="departementInput">
+                <div class="departementInput" id="departementInput">
                     <label for="departement">Par département :</label>
                     <div class="select-container">
                         <select name="departement" id="departement">
@@ -49,19 +53,28 @@
                     </div>
                 </div>
 
-                <div class="ou">
-                    Ou
-                </div>
-
-                <div class="villeInput">
+                <div class="villeInput" id="villeInput">
                     <label for="ville">Par ville :</label>
                     <div class="select-container">
                         <input type="text" name="ville" id="ville" list="ville-options" placeholder="Entrez une ville">
                         <datalist id="ville-options"></datalist>
                     </div>
                 </div>
-            </div>
-            <button type="submit" id="buttonsubmit">Submit</button>
+
+                <div class="yearInput">
+                    <label for="years">Par année :</label>
+                    <div class="select-container">
+                        <select name="years" id="years">
+                            <option value="">Choisissez une date</option>
+                            <option value="16">2016</option>
+                            <option value="17">2017</option>
+                            <option value="18">2018</option>
+                        </select>
+                        <img src="./images/chevron.svg" alt="Chevron" class="chevron">
+                    </div>
+                </div>
+            
+            <button type="submit" id="buttonsubmit" class="buttonsubmit">Submit</button>
         </div>
 
         <div class="typesCrimesInput">
@@ -132,7 +145,7 @@
                 <input type="text">
             </div>
 
-            <button type="submit" id="buttonsubmit2">Submit2</button>
+            <button type="submit" id="validationComparaisonCommunesDashboard" class="buttonsubmit buttonsubmit2">Submit2</button>
         </div>
     </div>
 

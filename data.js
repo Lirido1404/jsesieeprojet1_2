@@ -1,427 +1,455 @@
-const layer = L.tileLayer("https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}@2x.png", {
-    attribution: '&copy; <a href="https://carto.com/attributions">CartoDB</a> contributors'
-});
+const villeInput = document.getElementById("ville");
+const communesInput = document.getElementById("communes");
+const communesOptions = document.getElementById("communes-options");
+const villeOptions = document.getElementById("ville-options");
 
-const initialCoordinates = { lat: 48.666160, lng: 2.842485 };
-const lmap = L.map('map', {
-    center: [initialCoordinates.lat, initialCoordinates.lng],
-    zoom: 7,
-    layers: [layer]
-});
-
-const createNbrDashboard = (data) => {
-    let customDiv = L.control({ position: 'topright' });
-
-    customDiv.onAdd = function (map) {
-        let div = L.DomUtil.create('div', 'custom-div');
-        let arr = [
-            data.nbrDestructions,
-            data.nbrDrugs,
-            data.nbrGun,
-            data.nbrOther,
-            data.nbrSexualharassment,
-            data.nbrSteal,
-            data.nbrViolence
-        ];
-        let crimeTypes = [
-            'Destructions',
-            'Drogues',
-            'Armes',
-            'Autres',
-            'Harcelement sexuel',
-            'Vols',
-            'Violences'
-        ];
-        let maxCount = arr.reduce((acc, val) => {
-            return Math.max(acc, val);
-        })
-        let maxIndex = arr.indexOf(maxCount);
-        let mostFrequentCrime = crimeTypes[maxIndex];
-        div.innerHTML = `Nombre total de crimes : ${data.nbrTTcrimes}<br>
-        Crime le plus perpétré : ${mostFrequentCrime} (${maxCount} cas)`;
-        return div;
-    };
-
-    customDiv.addTo(lmap);
-};
-
-const createNbrDashboard2 = (tauxPourMilles) => {
-    // Vérifie si une ancienne div avec l'ID 'dashboardCanvas' existe et la supprime
-    const existingCanvas = document.getElementById('dashboardCanvas');
-    if (existingCanvas) {
-        existingCanvas.parentElement.remove(); // Supprime la div contenant le canvas
-    }
-    let customDiv = L.control({ position: 'bottomleft' });
-
-    customDiv.onAdd = function (map) {
-        let div = L.DomUtil.create('div', 'custom-div2');
-        // Ajout de la balise canvas dans le contenu HTML
-        div.innerHTML = `
-            <canvas id="dashboardCanvas" width="700" height="350" style="border:1px solid #000000;">
-            </canvas>
-        `;
-        return div;
-    };
-
-    // Utilisation de lmap ici, pour s'assurer que la div est ajoutée au bon endroit
-    customDiv.addTo(lmap);
-
-    // Définir un tableau de couleurs pour chaque ville
-    const couleursVilles = [
-        '#A8385C85', // Rose
-        '#090D3385', // Bleu
-        '#ED671485'  // Orange
-    ];
-
-    // Une fois la div ajoutée, créer le graphique
-    setTimeout(() => {
-        const ctx = document.getElementById('dashboardCanvas').getContext('2d');
-
-        // Préparation des données
-        const labels = ['2016', '2017']; // Années
-        const datasets = tauxPourMilles.map((item, index) => ({
-            label: item.commune, // Nom de la commune
-            data: item.taux,    // Taux pour chaque année
-            backgroundColor: couleursVilles[index], // Couleur dynamique par ville
-            borderColor: couleursVilles[index],   // Bordure de la couleur
-            borderWidth: 1
-        }));
-
-        // Création du graphique
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels, // Années sur l'axe X
-                datasets: datasets // Les barres par commune
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top', // Légende en haut
-                    },
-                    tooltip: {
-                        enabled: true // Activer les infobulles
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: "Taux pour mille"
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: "Années"
-                        }
-                    }
-                }
-            }
-        });
-    }, 100); // Attendre un moment pour que le canvas soit disponible
-};
-
-const createListCommunesCRUD = (data) => {
-    // Supprimer la div si elle existe déjà
-    const existingCanvas = document.querySelector('.custom-div3');
-    if (existingCanvas) {
-        existingCanvas.remove(); // Supprime la div contenant le canvas
-    }
-
-    // Créer une liste des noms de communes
-    let listOfCommunes = data.map((el) => el.commune).join('<br>');  // Joindre les noms de communes avec des sauts de ligne
-
-    // Créer un contrôle personnalisé
-    let customDiv = L.control({ position: 'bottomright' });
-
-    customDiv.onAdd = function (map) {
-        // Créer la div contenant la liste des communes
-        let div = L.DomUtil.create('div', 'custom-div3');
-
-        // Insérer la liste des communes dans la div avec un bouton pour chaque commune
-        div.innerHTML = `<strong>Communes:</strong><br>`;
-        data.forEach((communeData) => {
-            const communeButton = document.createElement('button');
-            communeButton.textContent = communeData.commune;
-            communeButton.onclick = () => {
-                // Suppression de la ville du tableau arrNomsCommunes
-                arrNomsCommunes = arrNomsCommunes.filter(commune => commune !== communeData.commune);
-                console.log("Ville supprimée:", communeData.commune);
-                console.log("ArrNomsCommunes mis à jour:", arrNomsCommunes);
-                // Après suppression, resoumettre le graphique
-                buttonSubmit2.click(); // Déclenche le clique sur buttonSubmit2 pour re-créer le graphique
-            };
-            div.appendChild(communeButton);
-        });
-
-        return div;
-    };
-
-    customDiv.addTo(lmap);  // Ajouter le contrôle à la carte
-};
-
-const markersGroup = L.layerGroup().addTo(lmap);
-
-let dep = "";
 let nomVille = "";
-let annee = "";
 let nomCommune = "";
 
-const selectDep = document.getElementById("departement");
-const villeInput = document.getElementById('ville');
-const communesInput = document.getElementById('communes');
-const communesOptions = document.getElementById('communes-options');
-const villeOptions = document.getElementById('ville-options');
-const yearInput = document.getElementById("years");
-const submitButton = document.getElementById("buttonsubmit");
 
-selectDep.addEventListener('change', (e) => {
-    nomVille = "";
-    villeInput.value = "";
-    dep = e.target.value;
-    villeInput.disabled = Boolean(dep);
-});
-
-villeInput.addEventListener('input', async (e) => {
-    nomVille = e.target.value;
-    dep = "";
-    selectDep.value = "";
-    selectDep.disabled = Boolean(nomVille);
-    if (nomVille.length > 2) {
-        const communes = await fetchCommunes();
-        const filteredVilles = filterCommunesByName(communes, nomVille);
-        updateVilleOptions(filteredVilles);
-    } else {
-        villeOptions.innerHTML = '';
-    }
-});
-
-communesInput.addEventListener('input', async (e) => {
-    nomCommune = e.target.value;
-    if (nomCommune.length > 2) {
-        const communes = await fetchCommunes();
-        const filteredCommunes = filterCommunesByName(communes, nomCommune);
-        updateCommuneOptions(filteredCommunes);
-    } else {
-        communesOptions.innerHTML = '';
-    }
-});
-
-yearInput.addEventListener('input', (e) => {
-    annee = e.target.value;
-});
 
 const fetchCSV = async (url) => {
     try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("Erreur lors de la récupération des données");
-        const text = await response.text();
-        return Papa.parse(text, { header: true, skipEmptyLines: true }).data;
+      const response = await fetch(url);
+      if (!response.ok)
+        throw new Error("Erreur lors de la récupération des données");
+      const text = await response.text();
+      return Papa.parse(text, { header: true, skipEmptyLines: true }).data;
     } catch (error) {
-        console.error(`Erreur lors du chargement de ${url}:`, error);
-        return [];
+      console.error(`Erreur lors du chargement de ${url}:`, error);
+      return [];
     }
+  };
+  // fonction qui permettra de fetch les découpages de régions, il faudra juste faire ça dynamiquement avec les régions
+
+
+  const fetchCommunes = () => fetchCSV("codecommunes.csv"); // utile pour les datalists
+  const fetchCrimes = () => fetchCSV("crimedata.csv"); // utile pour les datalists
+
+// initialisation map leaflet
+const layer = L.tileLayer(
+  "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}@2x.png",
+  {
+    attribution:
+      '&copy; <a href="https://carto.com/attributions">CartoDB</a> contributors',
+  }
+);
+
+const coordonéesInitiales = { lat: 48.66616, lng: 2.842485 };
+const lmap = L.map("map", {
+  center: [coordonéesInitiales.lat, coordonéesInitiales.lng],
+  zoom: 7,
+  layers: [layer],
+});
+
+const groupesMarqueursMapLeaflet = L.layerGroup().addTo(lmap); // utile lorsque l'on voudra réinitialiser la map leaflet après un 2nd submit
+
+
+
+
+
+
+
+
+
+
+
+// Partie qui permet de préparer les datalists pour le 1er input concernant le filtre par ville, et le 2nd input nécéssaire pour la comparaison entre villes.
+villeInput.addEventListener("input", async (e) => {
+  nomVille = e.target.value;
+  if (nomVille.length > 2) {
+    const communes = await fetchCommunes(); // récupères tous les noms de villes
+    const VilleFiltrees = filtrageParNomVille(communes, nomVille); // les filtre à partir de la saisie de l'utilisateur
+    majVilleDatalist(VilleFiltrees); // met le datalist à jour
+  } else {
+    villeOptions.innerHTML = "";
+  }
+});
+communesInput.addEventListener("input", async (e) => {
+  nomCommune = e.target.value;
+  if (nomCommune.length > 2) {
+    const communes = await fetchCommunes();
+    const filteredCommunes = filtrageParNomVille(communes, nomCommune);
+    majCommuneDatalist(filteredCommunes);
+  } else {
+    communesOptions.innerHTML = "";
+  }
+});
+
+
+const filtrageParNomVille = (communes, nomCommune) => {
+  const nomVilleMaj = nomCommune.toUpperCase();
+  return communes
+    .filter((commune) => commune.nom_commune_postal.includes(nomVilleMaj))
+    .filter(
+      (value, index, self) =>
+        index ===
+        self.findIndex((t) => t.nom_commune_postal === value.nom_commune_postal)
+    ); // Dur à comprendre mais ça permet juste de supprimer les doublons, comme ça le datalist est + propre
+};
+const majVilleDatalist = (villes) => {
+  villeOptions.innerHTML = "";
+  villes.forEach((city) => {
+    const option = document.createElement("option");
+    option.value = city.nom_commune_postal;
+    villeOptions.appendChild(option);
+  });
+};
+const majCommuneDatalist = (communes) => {
+  communesOptions.innerHTML = ""; 
+  communes.forEach((commune) => {
+    const option = document.createElement("option");
+    option.value = commune.nom_commune_postal;
+    communesOptions.appendChild(option);
+  });
 };
 
-const fetchCommunes = () => fetchCSV("codecommunes.csv");
 
-const fetchCrimes = () => fetchCSV("crimedata.csv");
 
-const filterCommunesByName = (communes, name) => {
-    const upperName = name.toUpperCase();
-    return communes
-        .filter(commune => commune.nom_commune_postal.includes(upperName))
-        .filter((value, index, self) =>
-            index === self.findIndex(t => t.nom_commune_postal === value.nom_commune_postal)
-        );
-};
 
-const updateVilleOptions = (villes) => {
-    villeOptions.innerHTML = '';
-    villes.forEach(city => {
-        const option = document.createElement('option');
-        option.value = city.nom_commune_postal;
-        villeOptions.appendChild(option);
-    });
-};
 
-const updateCommuneOptions = (communes) => {
-    communesOptions.innerHTML = ''; // Efface les anciennes options
-    communes.forEach(commune => {
-        const option = document.createElement('option');
-        option.value = commune.nom_commune_postal;
-        communesOptions.appendChild(option);
-    });
-};
 
+
+
+
+
+
+// Partie qui permet d'ajouter des markers personnalisés en fonction du type de crimes rencontrés
+// PS : Génération de points aléatoires de crimes (pour chaque crimes) parceque dans le fichier crimedata, aucun crime n'est affilié à une latitude et longitude.
+// prérequis : une variable contenant les données de filtrage, et les coordonnées de la ville ( reprise lors du filtrage juste avant )
 const addMarkers = (data, coordinates) => {
-    const iconPaths = {
-        violence: './images/pnglegendes/violence.png',
-        steal: './images/pnglegendes/steal.png',
-        drugs: './images/pnglegendes/drugs.png',
-        destruction: './images/pnglegendes/destruction.png',
-        gun: './images/pnglegendes/gun.png',
-        other: './images/pnglegendes/other.png'
-    };
+  const iconPaths = {
+    violence: "./images/pnglegendes/violence.png",
+    steal: "./images/pnglegendes/steal.png",
+    drugs: "./images/pnglegendes/drugs.png",
+    destruction: "./images/pnglegendes/destruction.png",
+    gun: "./images/pnglegendes/gun.png",
+    other: "./images/pnglegendes/other.png",
+  };
 
-    const iconMapping = {
-        'Coups et blessures volontaires': 'violence',
-        'Coups et blessures volontaires intrafamiliaux': 'violence',
-        'Autres coups et blessures volontaires': 'violence',
-        'Violences sexuelles': 'violence',
-        'Vols de véhicules': 'steal',
-        'Vols dans les véhicules': 'steal',
-        'Vols d\'accessoires sur véhicules': 'steal',
-        'Cambriolages de logement': 'steal',
-        'Vols avec armes': 'gun',
-        'Vols violents sans arme': 'steal',
-        'Vols sans violence contre des personnes': 'steal',
-        'Trafic de stupéfiants': 'drugs',
-        'Usage de stupéfiants': 'drugs',
-        'Destructions et dégradations volontaires': 'destruction',
-    };
+  const iconMapping = {
+    "Coups et blessures volontaires": "violence",
+    "Coups et blessures volontaires intrafamiliaux": "violence",
+    "Autres coups et blessures volontaires": "violence",
+    "Violences sexuelles": "violence",
+    "Vols de véhicules": "steal",
+    "Vols dans les véhicules": "steal",
+    "Vols d'accessoires sur véhicules": "steal",
+    "Cambriolages de logement": "steal",
+    "Vols avec armes": "gun",
+    "Vols violents sans arme": "steal",
+    "Vols sans violence contre des personnes": "steal",
+    "Trafic de stupéfiants": "drugs",
+    "Usage de stupéfiants": "drugs",
+    "Destructions et dégradations volontaires": "destruction",
+  };
 
-    data.forEach(crime => {
-        const randomLat = coordinates.lat + (Math.random() - 0.5) * 0.4;
-        const randomLng = coordinates.lng + (Math.random() - 0.5) * 0.4;
-        const iconType = iconMapping[crime.classe] || 'other';
-        const customIcon = L.icon({
-            iconUrl: iconPaths[iconType],
-            iconSize: [42, 42],
-            iconAnchor: [16, 32],
-            popupAnchor: [0, -32]
-        });
-        const marker = L.marker([randomLat, randomLng], { icon: customIcon });
-        const tooltipContent = `<p class="test2">${crime.classe}</p>`;
-        marker.bindTooltip(tooltipContent);
-        marker.addTo(markersGroup);
+  data.forEach((crime) => {
+    const randomLat = coordinates.lat + (Math.random() - 0.5) * 0.4; // Il faudra changer l'apparition des marqueurs , c'est pas assez aléatoire.
+    const randomLng = coordinates.lng + (Math.random() - 0.5) * 0.4;
+    const iconType = iconMapping[crime.classe] || "other";
+    const customIcon = L.icon({
+      iconUrl: iconPaths[iconType],
+      iconSize: [42, 42],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
     });
+    const marker = L.marker([randomLat, randomLng], { icon: customIcon });
+    const tooltipContent = `<p class="test2">${crime.classe}</p>`;
+    marker.bindTooltip(tooltipContent);
+    marker.addTo(groupesMarqueursMapLeaflet);
+  });
 };
 
-submitButton.addEventListener('click', async () => {
-    markersGroup.clearLayers();
-    const communes = await fetchCommunes();
-    const crimes = await fetchCrimes();
-    let coordinates = initialCoordinates;
-    let filteredCrimes;
-    if (nomVille) {
-        const selectedCommune = communes.find(c => c.nom_commune_postal === nomVille.toUpperCase());
-        if (selectedCommune) {
-            coordinates = { lat: parseFloat(selectedCommune.latitude), lng: parseFloat(selectedCommune.longitude) };
-            filteredCrimes = crimes.filter(c =>
-                parseInt(c.CODGEO_2024) === parseInt(selectedCommune.code_commune_INSEE) &&
-                (!annee || parseInt(c.annee) === parseInt(annee))
-            );
-        }
-    } else if (dep) {
-        if (annee) {
-            filteredCrimes = crimes.filter(c => c.CODGEO_2024.startsWith(dep) && (parseInt(annee) === parseInt(c.annee)));
+
+
+
+
+
+
+
+// Cette partie me permet de récupérer des infos pour faire un mini recap en haut a droite de la map leaflet.
+// Dans ce mini recap on peut afficher : - Le nombre de crimes total qu'il y a eu dans la REGION, le DEP, ou la VILLE.
+//                                       - le crime le plus itéré et son nombre d'itération
+
+// Partie s'effectuant après un submit lors de la validation du 1er submit
+// Après le submit, ne pas oublier le groupesMarqueursMapLeaflet.clearLayers(); pour réinitialiser la map leaflet après un second submit
+
+
+/* 
+  let nbrHarcelementSexuel = 0;
+  let nbrDrogues = 0;
+  let nbrArmes = 0;
+  let nbrAutres = 0;
+  let nbrDestructions = 0;
+  let nbrVols = 0;
+  let nbrViolence = 0;
+
+  filteredCrimes.forEach((crime) => {
+    let classe = crime.classe;
+    switch (classe) {
+      case "Coups et blessures volontaires":
+      case "Coups et blessures volontaires intrafamiliaux":
+      case "Autres coups et blessures volontaires":
+      case "Violences sexuelles":
+        nbrViolence++;
+        break;
+      case "Vols de véhicules":
+      case "Vols dans les véhicules":
+      case "Vols d'accessoires sur véhicules":
+      case "Cambriolages de logement":
+      case "Vols avec armes":
+      case "Vols violents sans arme":
+      case "Vols sans violence contre des personnes":
+        nbrVols++;
+        break;
+      case "Trafic de stupéfiants":
+      case "Usage de stupéfiants":
+        nbrDrogues++;
+        break;
+      case "Destructions et dégradations volontaires":
+        nbrDestructions++;
+        break;
+      case "Vols avec armes":
+        nbrArmes++;
+        break;
+      default:
+        nbrAutres++;
+        break;
+    }
+  });
+
+  nbrTTcrimes =
+    nbrDestructions +
+    nbrDrogues +
+    nbrArmes +
+    nbrAutres +
+    nbrHarcelementSexuel +
+    nbrVols +
+    nbrViolence;
+
+  const data = {
+    nbrTTcrimes: nbrTTcrimes,
+    nbrDestructions: nbrDestructions,
+    nbrDrogues: nbrDrogues,
+    nbrArmes: nbrArmes,
+    nbrAutres: nbrAutres,
+    nbrHarcelementSexuel: nbrHarcelementSexuel,
+    nbrVols: nbrVols,
+    nbrViolence: nbrViolence,
+  };
+
+  createRecapOnLeaflet(data);
+*/
+
+
+
+
+
+
+
+
+
+// Ici, pour chaque année je fais une recherche des crimes fait pour chaque ville qu'il y a dans mon tableau de ville
+let validationComparaisonCommunesDashboard = document.getElementById("validationComparaisonCommunesDashboard");
+let tableauNomsCommunesComparaison = [];
+validationComparaisonCommunesDashboard.addEventListener("click", async () => {
+
+  tableauNomsCommunesComparaison.push(nomCommune);
+  let annees = [16, 17];
+  const communes = await fetchCommunes();
+  const crimes = await fetchCrimes();
+  let tauxPourMilles = [];
+
+  if (nomCommune) {
+    tableauNomsCommunesComparaison.forEach((el2) => {
+        console.log(el2);
+      let tauxPourMilleCommune = [];
+      annees.forEach((uneannee) => {
+        const communeTrouvée = communes.find(
+          (c) => c.nom_commune_postal === el2.toUpperCase()
+        ); 
+        // Partie me permettant de trouver les crimes d'une ville à l'année X : passage de codecommunes.csv à crimedata.csv
+        const filteredCrimes = crimes.filter(
+          (c) =>
+            parseInt(c.CODGEO_2024) ===
+              parseInt(communeTrouvée.code_commune_INSEE) &&
+            parseInt(c.annee) === uneannee
+        );
+
+        // Calcul du taux de criminalité de la ville à l'année X
+        let nbrCrimes = filteredCrimes.length;
+        let nbrPopulation = filteredCrimes.length > 0 ? filteredCrimes[0].POP : 0;
+        if (nbrPopulation > 0) {
+          let tauxPourMille = (nbrCrimes / nbrPopulation) * 1000;
+          tauxPourMilleCommune.push(tauxPourMille);
         } else {
-            filteredCrimes = crimes.filter(c => c.CODGEO_2024.startsWith(dep));
+          tauxPourMilleCommune.push(0); 
         }
-    }
+      });
 
-    lmap.setView([coordinates.lat, coordinates.lng], 9);
-
-    addMarkers(filteredCrimes || [], coordinates);
-    let nbrSexualharassment = 0;
-    let nbrDrugs = 0;
-    let nbrGun = 0;
-    let nbrOther = 0;
-    let nbrDestructions = 0;
-    let nbrSteal = 0;
-    let nbrViolence = 0;
-
-    filteredCrimes.forEach((crime) => {
-        let classe = crime.classe;
-        switch (classe) {
-            case 'Coups et blessures volontaires':
-            case 'Coups et blessures volontaires intrafamiliaux':
-            case 'Autres coups et blessures volontaires':
-            case 'Violences sexuelles':
-                nbrViolence++;
-                break;
-            case 'Vols de véhicules':
-            case 'Vols dans les véhicules':
-            case 'Vols d\'accessoires sur véhicules':
-            case 'Cambriolages de logement':
-            case 'Vols avec armes':
-            case 'Vols violents sans arme':
-            case 'Vols sans violence contre des personnes':
-                nbrSteal++;
-                break;
-            case 'Trafic de stupéfiants':
-            case 'Usage de stupéfiants':
-                nbrDrugs++;
-                break;
-            case 'Destructions et dégradations volontaires':
-                nbrDestructions++;
-                break;
-            case 'Vols avec armes':
-                nbrGun++;
-                break;
-            default:
-                nbrOther++;
-                break;
-        }
+      // Objet servant de tableaux pour récupérer les taux de chaque ville à chaque année pour préparer le dashboard de comparaison
+      tauxPourMilles.push({
+        commune: el2,
+        taux: tauxPourMilleCommune,
+      });
     });
+  }
+  createDashboardsComparaisonVille(tauxPourMilles);
+  createListCommunesCRUD(tauxPourMilles);
 
-    nbrTTcrimes = nbrDestructions + nbrDrugs + nbrGun + nbrOther + nbrSexualharassment + nbrSteal + nbrViolence;
-
-    const data = {
-        nbrTTcrimes: nbrTTcrimes,
-        nbrDestructions: nbrDestructions,
-        nbrDrugs: nbrDrugs,
-        nbrGun: nbrGun,
-        nbrOther: nbrOther,
-        nbrSexualharassment: nbrSexualharassment,
-        nbrSteal: nbrSteal,
-        nbrViolence: nbrViolence
-    }
-
-    createNbrDashboard(data);
 });
 
-let buttonSubmit2 = document.getElementById('buttonsubmit2');
 
-let arrNomsCommunes = [];
-buttonSubmit2.addEventListener('click', async () => {
-    arrNomsCommunes.push(nomCommune);
-    console.log(arrNomsCommunes);
-    let annees = [16, 17];
-    const communes = await fetchCommunes();
-    const crimes = await fetchCrimes();
-    let tauxPourMilles = [];
-    if (nomCommune) {
-        arrNomsCommunes.forEach((el2) => { // Utilise 'el2' pour représenter chaque commune
-            console.log(el2);
-            let tauxPourMilleCommune = [];
-            annees.forEach((uneannee) => {
-                const selectedCommune = communes.find(c => c.nom_commune_postal === el2.toUpperCase()); // Utilise 'el2' au lieu de 'nomCommune'
-                const filteredCrimes = crimes.filter(c =>
-                    parseInt(c.CODGEO_2024) === parseInt(selectedCommune.code_commune_INSEE) && parseInt(c.annee) === uneannee
-                );
-                let nbrCrimes = filteredCrimes.length;
-                let nbrPOP = filteredCrimes.length > 0 ? filteredCrimes[0].POP : 0;
-                if (nbrPOP > 0) {
-                    let tauxPourMille = (nbrCrimes / nbrPOP) * 1000;
-                    tauxPourMilleCommune.push(tauxPourMille);
-                } else {
-                    tauxPourMilleCommune.push(0); // Si pas de données de population ou de crimes
-                }
-            });
 
-            tauxPourMilles.push({
-                commune: el2, // Utilise 'el2' ici pour conserver le bon nom de commune
-                taux: tauxPourMilleCommune
-            });
-        });
+// créer le recap avec indication du nombre TT de crimes, + crime le plus itéré ( Recap = div en haut à droite de la map leaflet)
+const createRecapOnLeaflet = (data) => {
+    let customDiv = L.control({ position: "topright" });
+  
+    customDiv.onAdd = function (map) {
+      let div = L.DomUtil.create("div", "divRecapHautDroiteLeaflet");
+      let arr = [
+        data.nbrDestructions,
+        data.nbrDrogues,
+        data.nbrArmes,
+        data.nbrAutres,
+        data.nbrHarcelementSexuel,
+        data.nbrVols,
+        data.nbrViolence,
+      ];
+      let crimeTypes = [
+        "Destructions",
+        "Drogues",
+        "Armes",
+        "Autres",
+        "Harcelement sexuel",
+        "Vols",
+        "Violences",
+      ];
+      let iterationsMax = arr.reduce((acc, val) => {
+        return Math.max(acc, val);
+      });
+      let indexIterationsMax = arr.indexOf(iterationsMax);
+      let crimePlusFrequent = crimeTypes[indexIterationsMax];
+      // Récupération du crime le plus itéré à partir de l'indice du tableau.
+
+
+      div.innerHTML = `Nombre total de crimes : ${data.nbrTTcrimes}<br>
+          Crime le plus perpétré : ${crimePlusFrequent} (${iterationsMax} cas)`;
+      return div;
+    };
+  
+    customDiv.addTo(lmap);
+  };
+  
+
+
+
+// Création du dashboard où l'on compare les taux de criminalités par ville et par années ( div en bas a gauche de la map leaflet )
+  const createDashboardsComparaisonVille = (tauxPourMilles) => {
+    const canvasExistant = document.getElementById("dashboardCanvas");
+    if (canvasExistant) {
+      canvasExistant.parentElement.remove(); 
     }
-    createNbrDashboard2(tauxPourMilles);
-    createListCommunesCRUD(tauxPourMilles);
+    let customDiv = L.control({ position: "bottomleft" });
+  
+    customDiv.onAdd = function (map) {
+      let div = L.DomUtil.create("div", "dashboardBasGaucheLeaflet");
+      div.innerHTML = `
+              <canvas id="dashboardCanvas" width="700" height="350" style="border:1px solid #000000;">
+              </canvas>
+          `;
+      return div;
+    };
+  
+    customDiv.addTo(lmap);
+  
+    const couleursVilles = [
+      "#A8385C85",
+      "#090D3385",
+      "#ED671485",
+    ];
+  
+    setTimeout(() => {
+      const ctx = document.getElementById("dashboardCanvas").getContext("2d");
+  
+      const labels = ["2016", "2017"]; 
+      const datasets = tauxPourMilles.map((item, index) => ({
+        label: item.commune, 
+        data: item.taux, 
+        backgroundColor: couleursVilles[index], 
+        borderColor: couleursVilles[index], 
+        borderWidth: 1,
+      }));
+  
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels, 
+          datasets: datasets, 
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: "top", 
+            },
+            tooltip: {
+              enabled: true,
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Taux pour mille",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "Années",
+              },
+            },
+          },
+        },
+      });
+    }, 100);
+  };
+  
+  // tableaux des villes que l'utilisateur veut afficher dans le dashboard. Ce tableau est la div en bas a droite de la map leaflet
+  // C'est à partir de cette div qu'il pourra décider quelles villes il voudra comparer en les supprimant
 
-    console.log(tauxPourMilles);
-});
+  //PS: Cette fonction n'est pas encore bonne à 100%
+  const createListCommunesCRUD = (data) => {
+    const canvasExistant = document.querySelector(".listeVillesBasDroiteLeaflet");
+    if (canvasExistant) {
+      canvasExistant.remove(); 
+    }
+  
+  
+    let customDiv = L.control({ position: "bottomright" });
+  
+    customDiv.onAdd = function (map) {
+      let div = L.DomUtil.create("div", "listeVillesBasDroiteLeaflet");
+  
+      div.innerHTML = `<strong>Communes:</strong><br>`;
+      data.forEach((communeData) => {
+        const communeButton = document.createElement("button");
+        communeButton.textContent = communeData.commune;
+        communeButton.onclick = () => {
+          tableauNomsCommunesComparaison = tableauNomsCommunesComparaison.filter(
+            (commune) => commune !== communeData.commune
+          );
+          buttonSubmit2.click(); 
+        };
+        div.appendChild(communeButton);
+      });
+  
+      return div;
+    };
+  
+    customDiv.addTo(lmap); 
+  };
+  

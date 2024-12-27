@@ -1,7 +1,7 @@
 const selectYears = document.getElementById('years');
 const selectDepartement = document.getElementById('departement');
 const selectVille = document.getElementById('ville');
-const selectRegions = document.getElementById("regions");
+const selectRegions = document.getElementById("region");
 const divDepartementInput = document.getElementById("departementInput");
 const divVilleInput = document.getElementById("villeInput");
 
@@ -13,6 +13,8 @@ selectRegions.addEventListener('change', (e) => {
         divDepartementInput.style.height = '0'; 
         divDepartementInput.classList.remove('active');
     }
+    divVilleInput.classList.remove('active');
+    divVilleInput.style.height = '0'; 
 });
 
 selectDepartement.addEventListener('change', (e) => {

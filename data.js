@@ -18,6 +18,44 @@ const data = {
     years: new Set()  // Stores the years of crimes
 };
 let isLoading = true;
+const layer = L.tileLayer(
+    "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}@2x.png",
+    {
+        attribution:
+            '&copy; <a href="https://carto.com/attributions">CartoDB</a> contributors',
+    }
+);
+const initialCoordinates = { lat: 48.66616, lng: 2.842485 };
+const map = L.map("map", {
+    center: [initialCoordinates.lat, initialCoordinates.lng],
+    zoom: 7,
+    layers: [layer],
+});
+const markers = L.markerClusterGroup().addTo(map);
+const iconPaths = {
+    violence: "./images/pnglegendes/violence.png",
+    steal: "./images/pnglegendes/steal.png",
+    drugs: "./images/pnglegendes/drugs.png",
+    destruction: "./images/pnglegendes/destruction.png",
+    gun: "./images/pnglegendes/gun.png",
+    other: "./images/pnglegendes/other.png",
+};
+const iconMapping = {
+    "Coups et blessures volontaires": "violence",
+    "Coups et blessures volontaires intrafamiliaux": "violence",
+    "Autres coups et blessures volontaires": "violence",
+    "Violences sexuelles": "violence",
+    "Vols de véhicules": "steal",
+    "Vols dans les véhicules": "steal",
+    "Vols d'accessoires sur véhicules": "steal",
+    "Cambriolages de logement": "steal",
+    "Vols avec armes": "gun",
+    "Vols violents sans arme": "steal",
+    "Vols sans violence contre des personnes": "steal",
+    "Trafic de stupéfiants": "drugs",
+    "Usage de stupéfiants": "drugs",
+    "Destructions et dégradations volontaires": "destruction",
+};
 
 // Load CSV data into `data`
 async function initData() {
@@ -165,24 +203,97 @@ async function initDataOptionsInInputs() {
         yearSelect.appendChild(option);
     });
 
+    // onSubmit
+    const submitButton = document.getElementById('buttonsubmit');
+    submitButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (isLoading) return;
+        handleSubmit();
+    });
+
     console.log('Data options initialized successfully.');
 }
 
-function initUI() {
-    const layer = L.tileLayer(
-        "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}@2x.png",
-        {
-            attribution:
-                '&copy; <a href="https://carto.com/attributions">CartoDB</a> contributors',
-        }
-    );
+// Handle form submission for fetching and displaying data filtered by user input
+function handleSubmit() {
+    const regionSelect = document.getElementById('region');
+    const departementSelect = document.getElementById('departement');
+    const villeInput = document.getElementById('ville');
+    const yearSelect = document.getElementById('years');
 
-    const coordonéesInitiales = { lat: 48.66616, lng: 2.842485 };
-    const lmap = L.map("map", {
-        center: [coordonéesInitiales.lat, coordonéesInitiales.lng],
-        zoom: 7,
-        layers: [layer],
+    const selectedRegionCode = regionSelect.value;
+    const selectedDepartmentCode = departementSelect.value;
+    const selectedCityName = villeInput.value;
+    const selectedYear = yearSelect.value;
+
+    const dataFetched = fetchData(selectedYear, selectedRegionCode, selectedDepartmentCode, selectedCityName);
+    displayMap(dataFetched, map, markers);
+}
+
+// Fetch data based on user input
+function fetchData(selectedYear, selectedRegionCode, selectedDepartmentCode, selectedCityName) {
+    if (!selectedRegionCode) {
+        alert('Veuillez sélectionner une région.');
+        return;
+    }
+
+    let selectedCrimes = [];
+    let crimes = [];
+
+    if (selectedCityName !== "") {
+        console.log("fetching for city:", selectedCityName);
+        const selectedCityCode = data.codeCommunes.find(row => row.nom_commune === selectedCityName && row.code_departement === selectedDepartmentCode)?.code_commune_INSEE;
+        if (selectedCityCode) {
+            crimes = data.hierarchy[selectedRegionCode][selectedDepartmentCode][selectedCityCode] || [];
+        }
+    } else if (selectedDepartmentCode !== "") {
+        console.log("fetching for dep:", selectedDepartmentCode);
+        crimes = Object.values(data.hierarchy[selectedRegionCode][selectedDepartmentCode] || {}).flat();
+    } else {
+        console.log("fetching for region:", selectedRegionCode);
+        crimes = Object.values(Object.values(data.hierarchy[selectedRegionCode] || {}).flat()).flat();
+    }
+    selectedCrimes = (selectedYear !== "") ? crimes.filter(crime => crime.annee === selectedYear) : crimes;
+
+    return {
+        region: data.names.regionNames[selectedRegionCode],
+        department: data.names.departmentNames[selectedDepartmentCode] || "",
+        city: selectedCityName,
+        year: selectedYear,
+        crimes: selectedCrimes
+    };
+}
+
+// Display data on the map
+function displayMap(response, map, markers) {
+    markers.clearLayers();
+    response.crimes.forEach(point => {
+        let popupContent = "";
+        if (point.CODGEO_2024) {
+            console.log(point);
+            popupContent += point.classe + "<br>";
+            const city = data.names.cityNames[point.CODGEO_2024];
+            popupContent += "Ville: " + city + "<br>";
+            const department = point.CODGEO_2024.length === 4
+                ? data.names.departmentNames[point.CODGEO_2024.slice(0, 1)]
+                : data.names.departmentNames[point.CODGEO_2024.slice(0, 2)];
+            popupContent += "Département: " + department + "<br>";
+            popupContent += "Région: " + response.region + "<br>";
+            popupContent += "Année: " + point.annee + "<br>";
+        }
+
+        const iconType = iconMapping[point.classe] || "other";
+        const customIcon = L.icon({
+            iconUrl: iconPaths[iconType],
+            iconSize: [42, 42],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32],
+        });
+
+        const marker = L.marker([point.latitude, point.longitude], { icon: customIcon }).bindPopup(popupContent);
+        markers.addLayer(marker);
     });
+    map.addLayer(markers);
 }
 
 // main function
@@ -191,7 +302,6 @@ async function initializeWebSite() {
         await initData();
         await initDataOptionsInInputs();
         isLoading = false;
-        initUI();
     } catch (error) {
         console.error("An error occurred during initialization:", error);
     }

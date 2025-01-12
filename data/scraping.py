@@ -1,5 +1,6 @@
 import csv
 import os
+import shutil
 
 def clean_trim_crimedata(crimedata_input_file, crimedata_output_file, codecommunes_file, output_dir):
     """
@@ -17,13 +18,19 @@ def clean_trim_crimedata(crimedata_input_file, crimedata_output_file, codecommun
     - `output_dir` : Répertoire de sortie pour les fichiers régionaux.
     """
 
+    # Supprimer le fichier de sortie et le contenu du répertoire output_dir s'ils existent déjà
+    if os.path.exists(crimedata_output_file):
+        os.remove(crimedata_output_file)
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+
     # Créer le répertoire de sortie s'il n'existe pas
     os.makedirs(output_dir, exist_ok=True)
 
     # Charger les codes communaux et leurs régions dans un dictionnaire
     codecommunes = {}
     with open(codecommunes_file, 'r', encoding='utf-8-sig') as communes_file:
-        reader = csv.DictReader(communes_file, delimiter=';')
+        reader = csv.DictReader(communes_file, delimiter=',')
         for row in reader:
             # Utiliser le code commune INSEE comme clé et le code région comme valeur
             code_insee = row['code_commune_INSEE']
@@ -48,26 +55,32 @@ def clean_trim_crimedata(crimedata_input_file, crimedata_output_file, codecommun
 
         for row in reader:
             codgeo = row[0].strip('"').lstrip('0')  # Nettoyer le CODGEO
-            if codgeo in codecommunes:
-                # Ajouter les coordonnées dans la ligne
-                row.extend([codecommunes[codgeo]['latitude'], codecommunes[codgeo]['longitude']])
+            try:
+                crime_count = int(row[5])
+            except ValueError:
+                # Ignorer les lignes où le nombre de crimes n'est pas un entier valide
+                continue
+            if codgeo in codecommunes:  # Vérifier si le CODGEO est présent
+                if crime_count>0:  # Vérifier si le nombre de crimes est supérieur à 0
+                    # Ajouter les coordonnées dans la ligne
+                    row.extend([codecommunes[codgeo]['latitude'], codecommunes[codgeo]['longitude']])
 
-                # Écrire la ligne dans le fichier nettoyé
-                row[0] = row[0].replace('"', '').lstrip('0') # Remplacer le CODGEO nettoyé
-                writer.writerow(row)
+                    # Écrire la ligne dans le fichier nettoyé
+                    row[0] = row[0].replace('"', '').lstrip('0') # Remplacer le CODGEO nettoyé
+                    writer.writerow(row)
 
-                # Obtenir le code de région correspondant
-                code_region = codecommunes[codgeo]['code_region']
+                    # Obtenir le code de région correspondant
+                    code_region = codecommunes[codgeo]['code_region']
 
-                # Préparer un fichier par région si nécessaire
-                if code_region not in region_files:
-                    region_files[code_region] = open(f'{output_dir}region_{code_region}.csv', 'w', encoding='utf-8', newline='')
+                    # Préparer un fichier par région si nécessaire
+                    if code_region not in region_files:
+                        region_files[code_region] = open(f'{output_dir}region_{code_region}.csv', 'w', encoding='utf-8', newline='')
+                        region_writer = csv.writer(region_files[code_region], delimiter=';')
+                        region_writer.writerow(header)  # Écrire l'en-tête dans chaque fichier régional
+
+                    # Écrire la ligne dans le fichier de la région correspondante
                     region_writer = csv.writer(region_files[code_region], delimiter=';')
-                    region_writer.writerow(header)  # Écrire l'en-tête dans chaque fichier régional
-
-                # Écrire la ligne dans le fichier de la région correspondante
-                region_writer = csv.writer(region_files[code_region], delimiter=';')
-                region_writer.writerow(row)
+                    region_writer.writerow(row)
             else:
                 # Ajouter à la liste des CODGEO retirés
                 removed_codgeo.add(codgeo)

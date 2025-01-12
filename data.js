@@ -37,19 +37,19 @@ const iconPaths = {
     steal: "./images/pnglegendes/steal.png",
     drugs: "./images/pnglegendes/drugs.png",
     destruction: "./images/pnglegendes/destruction.png",
-    gun: "./images/pnglegendes/gun.png",
-    other: "./images/pnglegendes/other.png",
+    stealGun: "./images/pnglegendes/gun.png",
+    sexualViolence: "./images/pnglegendes/other.png",
 };
 const iconMapping = {
     "Coups et blessures volontaires": "violence",
     "Coups et blessures volontaires intrafamiliaux": "violence",
     "Autres coups et blessures volontaires": "violence",
-    "Violences sexuelles": "violence",
+    "Violences sexuelles": "sexualViolence",
     "Vols de véhicules": "steal",
     "Vols dans les véhicules": "steal",
     "Vols d'accessoires sur véhicules": "steal",
     "Cambriolages de logement": "steal",
-    "Vols avec armes": "gun",
+    "Vols avec armes": "stealGun",
     "Vols violents sans arme": "steal",
     "Vols sans violence contre des personnes": "steal",
     "Trafic de stupéfiants": "drugs",
@@ -203,6 +203,17 @@ async function initDataOptionsInInputs() {
         yearSelect.appendChild(option);
     });
 
+    // checkboxes for crime types
+    document.querySelectorAll('.cercle-container').forEach(container => {
+        container.addEventListener('click', () => {
+            const checkboxId = container.getAttribute('data-checkbox-id');
+            const checkbox = document.getElementById(checkboxId);
+            checkbox.checked = !checkbox.checked;
+    
+            container.classList.toggle('selected');
+        });
+    });
+    
     // onSubmit
     const submitButton = document.getElementById('buttonsubmit');
     submitButton.addEventListener('click', (e) => {
@@ -255,6 +266,11 @@ function fetchData(selectedYear, selectedRegionCode, selectedDepartmentCode, sel
     }
     selectedCrimes = (selectedYear !== "") ? crimes.filter(crime => crime.annee === selectedYear) : crimes;
 
+    const selectedCrimeTypes = Array.from(document.querySelectorAll('.crimeTypeCheckbox:checked')).map(cb => cb.value);
+    if (selectedCrimeTypes.length > 0) {
+        selectedCrimes = selectedCrimes.filter(crime => selectedCrimeTypes.includes(iconMapping[crime.classe]));
+    }
+    
     return {
         region: data.names.regionNames[selectedRegionCode],
         department: data.names.departmentNames[selectedDepartmentCode] || "",
@@ -271,7 +287,8 @@ function displayMap(response, map, markers) {
         let popupContent = "";
         if (point.CODGEO_2024) {
             console.log(point);
-            popupContent += point.classe + "<br>";
+            popupContent += "<b>" + point.classe + "</b><br>";
+            popupContent += "Nombre de faits: <u>" + point.faits + "</u><br><br>";
             const city = data.names.cityNames[point.CODGEO_2024];
             popupContent += "Ville: " + city + "<br>";
             const department = point.CODGEO_2024.length === 4

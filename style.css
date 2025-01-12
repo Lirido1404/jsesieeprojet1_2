@@ -210,6 +210,10 @@ option {
     gap: 6px;
 }
 
+.crimeTypeCheckbox {
+    display: none;
+}
+
 .separator {
     margin-top: 16px;
     width: 80%;

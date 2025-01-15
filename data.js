@@ -256,6 +256,7 @@ function fetchData(selectedYear, selectedRegionCode, selectedDepartmentCode, sel
         const selectedCityCode = data.codeCommunes.find(row => row.nom_commune === selectedCityName && row.code_departement === selectedDepartmentCode)?.code_commune_INSEE;
         if (selectedCityCode) {
             crimes = data.hierarchy[selectedRegionCode][selectedDepartmentCode][selectedCityCode] || [];
+            createRecapOnLeaflet(crimes);
         }
     } else if (selectedDepartmentCode !== "") {
         console.log("fetching for dep:", selectedDepartmentCode);
@@ -286,7 +287,6 @@ function displayMap(response, map, markers) {
     response.crimes.forEach(point => {
         let popupContent = "";
         if (point.CODGEO_2024) {
-            console.log(point);
             popupContent += "<b>" + point.classe + "</b><br>";
             popupContent += "Nombre de faits: <u>" + point.faits + "</u><br><br>";
             const city = data.names.cityNames[point.CODGEO_2024];
@@ -323,6 +323,462 @@ async function initializeWebSite() {
         console.error("An error occurred during initialization:", error);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Partie Maxime Dashboards
+
+let nomCommune = "";
+const communesInput = document.getElementById("communes");
+communesInput.addEventListener("input", (e) => {
+    nomCommune = e.target.value;
+  });
+
+
+
+
+
+
+  let validationComparaisonCommunesDashboard = document.getElementById("validationComparaisonCommunesDashboard");
+  let tabCommunes = [];
+  
+  function handleClick() {
+      console.log(tabCommunes);
+      tabCommunes.push(nomCommune);
+  
+      let maxAnneeParVille = [];
+      let tauxPourMilles = [];
+  
+      tabCommunes.forEach((commune) => {
+          let villeData = data.codeCommunes.find(row => row.nom_commune === commune);
+          let codeRegion = villeData.code_region;
+          let codeDepartement = villeData.code_departement;
+          let codeCommune = villeData.code_commune_INSEE;
+          let dataCrimesVille = data.hierarchy[codeRegion][codeDepartement][codeCommune];
+          let annees = listeAnneeCrimes(dataCrimesVille);
+  
+          maxAnneeParVille.push(annees.length);
+          console.log(maxAnneeParVille);
+  
+          let tauxVille = {
+              commune: commune,
+              taux: [] 
+          };
+  
+          annees.forEach((anneee) => {
+              let filteredByYear = dataCrimesVille.filter((crime) => crime.annee == anneee);
+              let nombrePopVille = parseInt(filteredByYear[0].POP);
+  
+              let nombreCrimes = 0;
+              filteredByYear.forEach((typeCrime) => {
+                  nombreCrimes += parseInt(typeCrime.faits);
+              });
+  
+              let tauxPourMille = nombreCrimes === 0 ? 0 : (nombrePopVille / nombreCrimes) * 1000;
+              console.log(`Ville : ${commune}, année : ${anneee}, nombre de crimes : ${nombreCrimes}, tauxPourMille : ${tauxPourMille}`);
+  
+              tauxVille.taux.push(tauxPourMille); 
+          });
+  
+          tauxPourMilles.push(tauxVille); 
+      });
+  
+      console.log(tauxPourMilles);
+  
+      let max = 0;
+      for (let y = 0; y < maxAnneeParVille.length; y++) {
+          if (maxAnneeParVille[y] > max) {
+              max = maxAnneeParVille[y];
+          }
+      }
+  
+      let prepArrAnneeDashboard = [];
+      for (let cpt = 0; cpt < max; cpt++) {
+          prepArrAnneeDashboard.push(2016 + cpt);
+      }
+  
+      console.log(prepArrAnneeDashboard);
+  
+      createDashboardsComparaisonVille(tauxPourMilles, prepArrAnneeDashboard);
+      createListCommunesCRUD(tauxPourMilles, prepArrAnneeDashboard);
+  }
+  
+  validationComparaisonCommunesDashboard.addEventListener("click", handleClick);
+  
+
+
+
+
+
+
+  const createListCommunesCRUD = (tauxPourMilles,prepArrAnneeDashboard) => {
+    const canvasExistant = document.getElementById("dashboardCanvas");
+
+    const CRUDexistant = document.querySelector(".listeVillesBasDroiteLeaflet");
+    if (CRUDexistant) {
+      CRUDexistant.remove();
+    }
+  
+    let customDiv = L.control({ position: "bottomright" });
+  
+    customDiv.onAdd = function (map) {
+      let div = L.DomUtil.create("div", "listeVillesBasDroiteLeaflet");
+      
+  
+      let villeElement = document.createElement('div');
+      villeElement.textContent = 'Réinitialiser';
+      villeElement.style.cursor = 'pointer';
+
+      villeElement.addEventListener('click',()=>{
+        tabCommunes = [];
+        if (canvasExistant) {
+          canvasExistant.parentElement.remove(); 
+        }
+        villeElement.parentElement.remove()
+      })
+
+      div.appendChild(villeElement);
+
+  
+      return div;
+    };
+  
+    customDiv.addTo(map); 
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  const createRecapOnLeaflet = (crimes) => {
+    console.log(crimes);
+  
+    let annees = listeAnneeCrimes(crimes);
+    console.log(annees);
+  
+    let crimeTotals = {
+      "Coups et blessures volontaires": 0,
+      "Coups et blessures volontaires intrafamiliaux": 0,
+      "Autres coups et blessures volontaires": 0,
+      "Violences sexuelles": 0,
+      "Vols avec armes": 0,
+      "Vols violents sans arme": 0,
+      "Vols sans violence contre des personnes": 0,
+      "Cambriolages de logement": 0,
+      "Vols de véhicules": 0,
+      "Vols dans les véhicules": 0,
+      "Vols d'accessoires sur véhicules": 0,
+      "Destructions et dégradations volontaires": 0,
+      "Trafic de stupéfiants": 0,
+      "Usage de stupéfiants": 0,
+    };
+  
+    annees.forEach((anneee) => {
+      let filteredByYear = crimes.filter((crime) => crime.annee == anneee);
+  
+      filteredByYear.forEach((typecrime) => {
+        if (crimeTotals.hasOwnProperty(typecrime.classe)) {
+          crimeTotals[typecrime.classe] += parseInt(typecrime.faits);
+        }
+      });
+    });
+  
+    // Calcul du crime le plus fréquent (parmi les totaux)
+    let maxCrime = Math.max(...Object.values(crimeTotals));
+    let mostFrequentCrime = Object.keys(crimeTotals).find(
+      (key) => crimeTotals[key] === maxCrime
+    );
+  
+    // Vérifier si un récapitulatif existe déjà et le supprimer
+    let existingRecapControl = map._controlCorners["topright"].querySelector(".divRecapHautDroiteLeaflet");
+    if (existingRecapControl) {
+      existingRecapControl.remove();
+    }
+  
+    // Ajouter le nouveau récapitulatif
+    let customDiv = L.control({ position: "topright" });
+  
+    customDiv.onAdd = function (map) {
+      let div = L.DomUtil.create("div", "divRecapHautDroiteLeaflet");
+  
+      let totalCrimes = Object.values(crimeTotals).reduce((acc, val) => acc + val, 0);
+  
+      div.innerHTML = `
+        Nombre total de crimes : ${totalCrimes}<br>
+        Crime le plus perpétré : ${mostFrequentCrime} (${maxCrime} cas)
+      `;
+      return div;
+    };
+  
+    customDiv.addTo(map);
+  };
+  
+
+
+  
+
+
+
+// Création du dashboard où l'on compare les taux de criminalités par ville et par années ( div en bas a gauche de la map leaflet )
+  const createDashboardsComparaisonVille = (tauxPourMilles,prepArrAnneeDashboard) => {
+
+    prepArrAnneeDashboard = prepArrAnneeDashboard.map(item => item.toString());
+
+
+    const canvasExistant = document.getElementById("dashboardCanvas");
+    if (canvasExistant) {
+      canvasExistant.parentElement.remove(); 
+    }
+    let customDiv = L.control({ position: "bottomleft" });
+  
+    customDiv.onAdd = function (map) {
+      let div = L.DomUtil.create("div", "dashboardBasGaucheLeaflet");
+      div.innerHTML = `
+              <canvas id="dashboardCanvas" width="700" height="350" style="border:1px solid #000000;">
+              </canvas>
+          `;
+      return div;
+    };
+  
+    customDiv.addTo(map);
+  
+    const couleursVilles = [
+      "#A8385C85",
+      "#090D3385",
+      "#ED671485",
+    ];
+  
+    setTimeout(() => {
+      const ctx = document.getElementById("dashboardCanvas").getContext("2d");
+  
+      const labels = prepArrAnneeDashboard; 
+      const datasets = tauxPourMilles.map((item, index) => ({
+        label: item.commune, 
+        data: item.taux, 
+        backgroundColor: couleursVilles[index], 
+        borderColor: couleursVilles[index], 
+        borderWidth: 1,
+      }));
+  
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels, 
+          datasets: datasets, 
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: "top", 
+            },
+            tooltip: {
+              enabled: true,
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Taux pour mille",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "Années",
+              },
+            },
+          },
+        },
+      });
+    }, 100);
+  };
+  
+
+
+  const listeAnneeCrimes = (dataCrimesVille) =>{
+    let anneestab = [];
+    let uniqueAnneesTab = [];
+    let uniqueCount = 0; 
+
+    dataCrimesVille.forEach((crime) => {
+      let annee = crime.annee;
+      anneestab.push(annee);
+    });
+
+    for (let i=0; i < anneestab.length; i++) {
+      let isUnique = true;
+      for (let j=0; j < uniqueCount; j++) { 
+        if (anneestab[i] === uniqueAnneesTab[j]) { 
+          isUnique = false;
+          break;
+        }
+      }
+      if (isUnique) {
+        uniqueAnneesTab.push(anneestab[i]); 
+        uniqueCount++;
+      }
+    }
+    return uniqueAnneesTab;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const fetchGeoJSON = async (url) => {
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Données GeoJSON chargées:", data);
+
+        return data;
+    } catch (error) {
+        console.error(`Erreur lors du chargement de ${url}:`, error);
+        return null;
+    }
+};
+
+// Fonction pour styliser les polygones
+const getPolygonStyle = () => {
+    return {
+        color: "#3388ff", // Couleur des contours
+        weight: 2,       // Poids initial des contours
+        fillColor: "#6baed6",
+        fillOpacity: 0.6
+    };
+};
+
+// Fonction pour configurer les interactions (hover)
+const onEachFeature = (feature, layer) => {
+    layer.on({
+        mouseover: (e) => {
+            const target = e.target;
+            target.setStyle({
+                weight: 5, // Augmente le poids au survol
+                color: "#ff7800", // Change la couleur des contours
+                fillOpacity: 0.7
+            });
+            target.bringToFront(); // Amène l'élément en avant
+        },
+        mouseout: (e) => {
+            const target = e.target;
+            target.setStyle(getPolygonStyle()); // Réinitialise le style
+        },
+        click: () => {  // Ajout de l'événement click
+          if (feature.properties && feature.properties.nom) {
+              alert(feature.properties.nom);  // Affiche le nom de la propriété
+          }
+      }
+    });
+
+    if (feature.properties && feature.properties.nom) {
+        layer.bindTooltip(feature.properties.nom, {
+            permanent: false,
+            direction: "center"
+        });
+    }
+};
+
+// Charger et ajouter les données GeoJSON
+fetchGeoJSON("dep.geojson").then((geojsonData) => {
+    if (geojsonData) {
+        L.geoJSON(geojsonData, {
+            style: getPolygonStyle, // Appliquer le style initial
+            onEachFeature: onEachFeature // Configurer les interactions
+        }).addTo(map);
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // main
 initializeWebSite();

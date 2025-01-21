@@ -18,10 +18,17 @@
 </head>
 
 <body>
+    <div id="loader" class="loader">
+        <div class="progress-container">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        Chargement en cours...
+      </div>   
+      
     <header>
         <h1>Datavisualisation : Les crimes en France</h1>
     </header>
-
+    
     <div class="leftbar">
         <h2>Filtrer</h2>
 
@@ -122,29 +129,20 @@
 
         <div class="separator"></div>
 
-        <h2>Comparer</h2>
-        <div class="comparaisonInput">
-            <label>Comparaison par :</label>
+        <h2>Comparer des villes</h2>
+            <div class="comparaisonInput">
+                <div class="inputComm" id="inputComm">
+                    <label for="">Communes</label>
+                    <input type="text" id="communes">
+                </div>
 
-            <div class="barreChoix">
-                <div class="barreC barreC1" id="barreC1">Communes</div>
-                <div class="barreC barreC2">Départements</div>
+                <button type="submit" id="validationComparaisonCommunesDashboard"
+                        class="buttonsubmit buttonsubmit2" onclick="handleClick()">Ajouter</button>
             </div>
 
-            <div class="inputComm" id="inputComm">
-                <label for="">Communes</label>
-                <input type="text" id="communes" list="communes-options">
-                <datalist id="communes-options"></datalist>
-            </div>
+            <!-- Zone d'affichage des villes ajoutées -->
+            <div id="affichageVilles"></div>
 
-            <div class="inputDep" id="inputDep">
-                <label for="">Départements</label>
-                <input type="text">
-            </div>
-
-            <button type="submit" id="validationComparaisonCommunesDashboard"
-                class="buttonsubmit buttonsubmit2">Ajouter</button>
-        </div>
     </div>
 
     <main>

@@ -177,9 +177,19 @@ option {
 }
 
 .cercle-container.clicked img {
-    transform: scale(0.85); /* Légère augmentation de la taille de l'image */
+    transform: scale(0.85); /* Légère réduction de la taille de l'image */
     filter: grayscale(100%); /* Appliquer l'effet gris */
 }
+
+.cercle-container.clicked .textLegend {
+    opacity: 20%; /* Réduire l'opacité du texte quand le conteneur est cliqué */
+}
+
+.cercle-container .textLegend {
+    transition: opacity 0.3s ease; /* Ajouter une transition pour l'effet d'opacité */
+}
+
+
 
 
 .cercle-container {
@@ -249,13 +259,10 @@ option {
     color: var(--white);
 }
 
-.inputDep {
-    display: none;
-}
+
 
 .inputComm {
     margin-top: 4px;
-    display: none;
 }
 
 .phantom2 {
@@ -338,22 +345,51 @@ h1 {
     position: absolute;
     bottom: 0px;
     left: 0px;
-    z-index: 1000;
-}
-
-.listeVillesBasDroiteLeaflet{
-    background-color: var(--bg);
-    color: var(--white);
-    border: 3px solid var(--pink);
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 20px;
-    font-weight: bold;
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    z-index: 1000;
+    z-index: 999;
+    
 }
 
 
 
+
+
+
+
+.loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 1); /* Initialement, l'opacité est à 1 (complètement opaque) */
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    z-index: 1000;
+    flex-direction: column; 
+    transition: background-color 0.5s ease;
+
+  }
+  
+  .progress-container {
+    width: 80%;
+    background-color: #f3f3f3;
+    border-radius: 10px;
+    height: 30px;
+    margin-bottom: 20px; 
+  }
+  
+  .progress-bar {
+    height: 100%;
+    width: 0%; 
+    background-color: #A8385C; 
+    border-radius: 10px;
+    transition: width 0.5s ease-out;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  

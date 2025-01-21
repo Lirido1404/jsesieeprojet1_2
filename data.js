@@ -6,6 +6,53 @@ async function loadCSV(filePath) {
   return parsed.data;
 }
 
+
+
+// Function to get the region name from department code
+function getRegionNameFromDepartement(departmentCode) {
+  // Trouve le code de la région correspondant au département
+  const regionCode = data.codeCommunes.find(row => row.code_departement === departmentCode)?.code_region;
+
+  if (regionCode) {
+    // Si un code de région est trouvé, retourne le nom de la région
+    return data.names.regionNames[regionCode] || "Région inconnue";
+  } else {
+    // Si aucun code de région n'est trouvé, retourne un message d'erreur
+    return "Région non trouvée pour ce département";
+  }
+}
+
+
+
+
+function showLoader() {
+  document.getElementById("loader").classList.remove("hidden");
+  updateProgressBar(0); 
+}
+
+function hideLoader() {
+  document.getElementById("loader").classList.add("hidden");
+}
+
+function updateOpacity(percentage) {
+  const loaderBackground = document.getElementById("loader");
+  const opacity = 1 - (percentage / 100); // L'opacité diminue en fonction du pourcentage
+  loaderBackground.style.backgroundColor = `rgba(0, 0, 0, ${opacity})`; // Modifie l'opacité
+}
+
+function updateProgressBar(percentage) {
+  const progressBar = document.getElementById("progress-bar");
+  progressBar.style.width = percentage + "%"; // Met à jour la largeur de la barre
+
+  updateOpacity(percentage); // Met à jour l'opacité en fonction du pourcentage
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+
 // Data initialization
 const data = {
   hierarchy: {},  // Stores the hierarchy of regions, departments, and cities as well as crimes
@@ -57,11 +104,16 @@ const iconMapping = {
   "Destructions et dégradations volontaires": "destruction",
 };
 
+
+
 // Load CSV data into `data`
 async function initData() {
   try {
+    showLoader();
     const codeCommunesRows = await loadCSV('./data/codecommunes.csv');
     data.codeCommunes = codeCommunesRows;
+    updateProgressBar(25); // Mise à jour après le premier chargement
+
 
     // Separate dictionaries for names
     const regionNames = {};
@@ -93,6 +145,8 @@ async function initData() {
     const regionPromises = Array.from(regionFiles).map(async codeRegion => {
       if (!codeRegion || isNaN(codeRegion)) return;
       const regionData = await loadCSV(`./data/regions/region_${codeRegion}.csv`);
+      updateProgressBar(50); // Mise à jour à 50% pendant le chargement des régions
+
 
       // Add crimes to the corresponding cities
       regionData.forEach(row => {
@@ -113,14 +167,21 @@ async function initData() {
 
     // Wait for all regional files to be loaded
     await Promise.all(regionPromises);
+    updateProgressBar(75); // Mise à jour à 75% une fois que toutes les régions sont traitées
+
 
     data.hierarchy = hierarchy;
     data.names = { regionNames, departmentNames, cityNames };
     console.log(data);
+    updateProgressBar(100); 
+
 
     console.log('Data loaded successfully.');
   } catch (error) {
     console.error('Error loading CSV data:', error);
+  }finally {
+    await delay(500);
+    hideLoader();
   }
 }
 
@@ -144,31 +205,48 @@ async function initDataOptionsInInputs() {
     regionSelect.appendChild(option);
   });
 
-  // onChange region
-  regionSelect.addEventListener('change', () => {
-    const selectedRegionCode = regionSelect.value;
 
-    // reset other fields
+
+
+
+  function updateDepartementOptions(selectedRegionCode) {
+    const departementSelect = document.getElementById('departement');
+    const villeOptions = document.getElementById('ville-options');
+    const villeInput = document.getElementById('ville');
+  
+    // Reset the fields
     departementSelect.innerHTML = '<option value="">Choisissez un département</option>';
     villeOptions.innerHTML = '';
     villeInput.value = '';
     villeInput.disabled = true;
-
+  
+    // If a region is selected, populate the department options
     if (selectedRegionCode) {
       const departments = Object.keys(data.hierarchy[selectedRegionCode]).map(code => ({
         code,
         name: data.names.departmentNames[code]
       }));
+      
+      // Add department options
       departments.forEach(department => {
         const option = document.createElement('option');
         option.value = department.code;
         option.textContent = department.name;
         departementSelect.appendChild(option);
       });
+  
+      // Enable the department select
       departementSelect.disabled = false;
     } else {
+      // Disable the department select if no region is selected
       departementSelect.disabled = true;
     }
+  }
+
+
+  regionSelect.addEventListener('change', () => {
+    const selectedRegionCode = regionSelect.value;
+    updateDepartementOptions(selectedRegionCode); // Appel de la fonction pour mettre à jour les départements
   });
 
   // onChange departement
@@ -238,6 +316,10 @@ function handleSubmit() {
   const selectedCityName = villeInput.value;
   const selectedYear = yearSelect.value;
 
+
+  markers.clearLayers();
+
+
   const dataFetched = fetchData(selectedYear, selectedRegionCode, selectedDepartmentCode, selectedCityName);
   displayMap(dataFetched, map, markers);
 }
@@ -293,6 +375,9 @@ function fetchDataForDepartement(departementName) {
   const selectedYear = document.getElementById('years').value;
   const selectedRegionCode = data.codeCommunes.find(row => row.code_departement === departementCode)?.code_region;
   const selectedCityName = "";
+
+  markers.clearLayers();
+
   return fetchData(selectedYear, selectedRegionCode, departementCode, selectedCityName);
 }
 
@@ -331,13 +416,17 @@ function displayMap(response, map, markers) {
 // main function
 async function initializeWebSite() {
   try {
+    showLoader(); // Affiche le loader au début
     await initData();
     await initDataOptionsInInputs();
     isLoading = false;
   } catch (error) {
     console.error("An error occurred during initialization:", error);
+  } finally {
+    hideLoader(); // Cache le loader une fois terminé
   }
 }
+
 
 
 
@@ -370,7 +459,9 @@ let tabCommunes = [];
 
 function handleClick() {
   console.log(tabCommunes);
-  tabCommunes.push(nomCommune);
+  if(tabCommunes.length <4){
+    tabCommunes.push(nomCommune);
+  }
 
   let maxAnneeParVille = [];
   let tauxPourMilles = [];
@@ -437,40 +528,6 @@ validationComparaisonCommunesDashboard.addEventListener("click", handleClick);
 
 
 
-const createListCommunesCRUD = (tauxPourMilles, prepArrAnneeDashboard) => {
-  const canvasExistant = document.getElementById("dashboardCanvas");
-
-  const CRUDexistant = document.querySelector(".listeVillesBasDroiteLeaflet");
-  if (CRUDexistant) {
-    CRUDexistant.remove();
-  }
-
-  let customDiv = L.control({ position: "bottomright" });
-
-  customDiv.onAdd = function (map) {
-    let div = L.DomUtil.create("div", "listeVillesBasDroiteLeaflet");
-
-
-    let villeElement = document.createElement('div');
-    villeElement.textContent = 'Réinitialiser';
-    villeElement.style.cursor = 'pointer';
-
-    villeElement.addEventListener('click', () => {
-      tabCommunes = [];
-      if (canvasExistant) {
-        canvasExistant.parentElement.remove();
-      }
-      villeElement.parentElement.remove()
-    })
-
-    div.appendChild(villeElement);
-
-
-    return div;
-  };
-
-  customDiv.addTo(map);
-};
 
 
 
@@ -566,14 +623,9 @@ const createRecapOnLeaflet = (crimes) => {
 
 
 
-
-
-
-// Création du dashboard où l'on compare les taux de criminalités par ville et par années ( div en bas a gauche de la map leaflet )
 const createDashboardsComparaisonVille = (tauxPourMilles, prepArrAnneeDashboard) => {
 
   prepArrAnneeDashboard = prepArrAnneeDashboard.map(item => item.toString());
-
 
   const canvasExistant = document.getElementById("dashboardCanvas");
   if (canvasExistant) {
@@ -583,14 +635,35 @@ const createDashboardsComparaisonVille = (tauxPourMilles, prepArrAnneeDashboard)
 
   customDiv.onAdd = function (map) {
     let div = L.DomUtil.create("div", "dashboardBasGaucheLeaflet");
+    
+    // Ajouter le carré rouge en haut à droite
     div.innerHTML = `
-              <canvas id="dashboardCanvas" width="700" height="350" style="border:1px solid #000000;">
-              </canvas>
-          `;
+      <div style="position: relative;">
+        <div id="redSquare" style="position: absolute; border-radius:100%; top: -30px; right: -30px; width: 55px; height: 55px; background-color: #A8385C; display: flex; justify-content:center; align-items:center;"> <img src="./images/croix.svg" style="width : 35px; height : 35px;">  </div>
+        <canvas id="dashboardCanvas" width="700" height="350" style="border:1px solid #000000;">
+        </canvas>
+      </div>
+    `;
+    
     return div;
   };
 
   customDiv.addTo(map);
+
+  // Ajouter un écouteur d'événement sur le carré rouge
+  const redSquare = document.getElementById("redSquare");
+  const divContainer = redSquare ? redSquare.closest('div') : null; // Récupère le parent du carré rouge
+
+  if (redSquare && divContainer) {
+    redSquare.addEventListener('click', () => {
+      tabCommunes = [];
+      const canvasExistant = document.getElementById("dashboardCanvas");
+      if (canvasExistant) {
+        canvasExistant.parentElement.remove(); // Supprime le canvas et son parent
+      }
+      divContainer.remove(); // Supprime l'élément div contenant le carré rouge et le canvas
+    });
+  }
 
   const couleursVilles = [
     "#A8385C85",
@@ -645,7 +718,6 @@ const createDashboardsComparaisonVille = (tauxPourMilles, prepArrAnneeDashboard)
     });
   }, 100);
 };
-
 
 
 const listeAnneeCrimes = (dataCrimesVille) => {
@@ -705,18 +777,18 @@ const listeAnneeCrimes = (dataCrimesVille) => {
 
 
 
+// Variables pour stocker les couches GeoJSON
+let regionsLayer = null;  // Pour les régions
+let departementsLayer = null;  // Pour les départements
+
+// Fonction pour charger les données GeoJSON
 const fetchGeoJSON = async (url) => {
   try {
     const response = await fetch(url);
-
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-
-    const data = await response.json();
-    console.log("Données GeoJSON chargées:", data);
-
-    return data;
+    return await response.json();
   } catch (error) {
     console.error(`Erreur lors du chargement de ${url}:`, error);
     return null;
@@ -727,14 +799,14 @@ const fetchGeoJSON = async (url) => {
 const getPolygonStyle = () => {
   return {
     color: "#3388ff", // Couleur des contours
-    weight: 2,       // Poids initial des contours
+    weight: 2,        // Poids des contours
     fillColor: "#6baed6",
     fillOpacity: 0.6
   };
 };
 
-// Fonction pour configurer les interactions (hover)
-const onEachFeature = (feature, layer) => {
+// Fonction pour configurer les interactions (hover et click)
+const onEachFeatureReg = (feature, layer) => {
   layer.on({
     mouseover: (e) => {
       const target = e.target;
@@ -746,16 +818,31 @@ const onEachFeature = (feature, layer) => {
       target.bringToFront(); // Amène l'élément en avant
     },
     mouseout: (e) => {
-      const target = e.target;
-      target.setStyle(getPolygonStyle()); // Réinitialise le style
+      e.target.setStyle(getPolygonStyle()); // Réinitialise le style
     },
-    click: () => {  // Ajout de l'événement click
-      if (feature.properties && feature.properties.nom) {
-        fetchDataForDepartement(feature.properties.nom);
+    click: () => {
+      // Supprimer la couche des départements si elle existe
+      if (departementsLayer) {
+        map.removeLayer(departementsLayer);  // Supprime la couche des départements existante
       }
+
+      // Supprimer la couche des régions si elle existe
+      if (regionsLayer) {
+        map.removeLayer(regionsLayer); // Supprime la couche des régions
+      }
+
+      // Charger et afficher les départements au clic
+      fetchGeoJSON("dep.geojson").then((geojsonData) => {
+        if (geojsonData) {
+          departementsLayer = L.geoJSON(geojsonData, {
+            style: getPolygonStyle, // Appliquer le style initial
+            onEachFeature: onEachFeatureDep // Configurer les interactions
+          }).addTo(map); // Ajouter la couche des départements à la carte
+        }
+      });
     }
   });
-
+  // Ajouter un tooltip avec le nom de la région ou département
   if (feature.properties && feature.properties.nom) {
     layer.bindTooltip(feature.properties.nom, {
       permanent: false,
@@ -764,13 +851,47 @@ const onEachFeature = (feature, layer) => {
   }
 };
 
-// Charger et ajouter les données GeoJSON
-fetchGeoJSON("dep.geojson").then((geojsonData) => {
+
+
+
+
+
+
+
+const onEachFeatureDep = (feature, layer) => {
+  layer.on({
+    mouseover: (e) => {
+      const target = e.target;
+      target.setStyle({
+        weight: 5, // Augmente le poids au survol
+        color: "#ff7800", // Change la couleur des contours
+        fillOpacity: 0.7
+      });
+      target.bringToFront(); // Amène l'élément en avant
+    },
+    mouseout: (e) => {
+      e.target.setStyle(getPolygonStyle()); // Réinitialise le style
+    },
+    click: () => {
+      alert(`${feature.properties.nom}`)
+    }
+  });
+  // Ajouter un tooltip avec le nom de la région ou département
+  if (feature.properties && feature.properties.nom) {
+    layer.bindTooltip(feature.properties.nom, {
+      permanent: false,
+      direction: "center"
+    });
+  }
+};
+
+// Charger les régions initialement
+fetchGeoJSON("regions.geojson").then((geojsonData) => {
   if (geojsonData) {
-    L.geoJSON(geojsonData, {
+    regionsLayer = L.geoJSON(geojsonData, {
       style: getPolygonStyle, // Appliquer le style initial
-      onEachFeature: onEachFeature // Configurer les interactions
-    }).addTo(map);
+      onEachFeature: onEachFeatureReg // Configurer les interactions
+    }).addTo(map); // Ajouter la couche des régions à la carte
   }
 });
 

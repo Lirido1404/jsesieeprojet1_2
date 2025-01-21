@@ -353,8 +353,8 @@ async function initDataOptionsInInputs() {
 
     if (departementsLayer) {
       map.removeLayer(departementsLayer);
-      departementsLayer = null;  // Réinitialiser la référence
-  }
+      departementsLayer = null; // Réinitialiser la référence
+    }
 
     // reset city field
     villeOptions.innerHTML = "";
@@ -380,23 +380,29 @@ async function initDataOptionsInInputs() {
     if (selectedDepartmentCode === "") {
       // Si "Choisissez un département" est sélectionné, afficher tous les départements de la région sélectionnée
       fetchGeoJSON("dep.geojson").then((geojsonData) => {
-          if (geojsonData) {
-              const filteredFeatures = geojsonData.features.filter(departmentFeature => {
-                  return data.codeCommunes.some(row => row.code_departement === departmentFeature.properties.code && row.code_region === selectedRegionCode);
-              });
+        if (geojsonData) {
+          const filteredFeatures = geojsonData.features.filter(
+            (departmentFeature) => {
+              return data.codeCommunes.some(
+                (row) =>
+                  row.code_departement === departmentFeature.properties.code &&
+                  row.code_region === selectedRegionCode
+              );
+            }
+          );
 
-              const filteredGeoJSON = {
-                  ...geojsonData,
-                  features: filteredFeatures
-              };
+          const filteredGeoJSON = {
+            ...geojsonData,
+            features: filteredFeatures,
+          };
 
-              departementsLayer = L.geoJSON(filteredGeoJSON, {
-                  style: getPolygonStyle,
-                  onEachFeature: onEachFeatureDep
-              }).addTo(map);
-          }
+          departementsLayer = L.geoJSON(filteredGeoJSON, {
+            style: getPolygonStyle,
+            onEachFeature: onEachFeatureDep,
+          }).addTo(map);
+        }
       });
-  }
+    }
   });
 
   // years
@@ -417,6 +423,8 @@ async function initDataOptionsInInputs() {
       checkbox.checked = !checkbox.checked;
 
       container.classList.toggle("selected");
+
+      handleSubmit();
     });
   });
 

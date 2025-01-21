@@ -6,12 +6,12 @@ async function loadCSV(filePath) {
   return parsed.data;
 }
 
-
-
 // Function to get the region name from department code
 function getRegionNameFromDepartement(departmentCode) {
   // Trouve le code de la région correspondant au département
-  const regionCode = data.codeCommunes.find(row => row.code_departement === departmentCode)?.code_region;
+  const regionCode = data.codeCommunes.find(
+    (row) => row.code_departement === departmentCode
+  )?.code_region;
 
   if (regionCode) {
     // Si un code de région est trouvé, retourne le nom de la région
@@ -22,12 +22,9 @@ function getRegionNameFromDepartement(departmentCode) {
   }
 }
 
-
-
-
 function showLoader() {
   document.getElementById("loader").classList.remove("hidden");
-  updateProgressBar(0); 
+  updateProgressBar(0);
 }
 
 function hideLoader() {
@@ -36,7 +33,7 @@ function hideLoader() {
 
 function updateOpacity(percentage) {
   const loaderBackground = document.getElementById("loader");
-  const opacity = 1 - (percentage / 100); // L'opacité diminue en fonction du pourcentage
+  const opacity = 1 - percentage / 100; // L'opacité diminue en fonction du pourcentage
   loaderBackground.style.backgroundColor = `rgba(0, 0, 0, ${opacity})`; // Modifie l'opacité
 }
 
@@ -48,21 +45,20 @@ function updateProgressBar(percentage) {
 }
 
 function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
-
 
 // Data initialization
 const data = {
-  hierarchy: {},  // Stores the hierarchy of regions, departments, and cities as well as crimes
-  codeCommunes: [],  // Stores the codecommunes file
-  names: {  // Stores the names of regions, departments, and cities
+  hierarchy: {}, // Stores the hierarchy of regions, departments, and cities as well as crimes
+  codeCommunes: [], // Stores the codecommunes file
+  names: {
+    // Stores the names of regions, departments, and cities
     regionNames: {},
     departmentNames: {},
-    cityNames: {}
+    cityNames: {},
   },
-  years: new Set()  // Stores the years of crimes
+  years: new Set(), // Stores the years of crimes
 };
 let isLoading = true;
 const layer = L.tileLayer(
@@ -103,17 +99,17 @@ const iconMapping = {
   "Usage de stupéfiants": "drugs",
   "Destructions et dégradations volontaires": "destruction",
 };
-
-
+// Variables pour stocker les couches GeoJSON
+let regionsLayer = null; // Pour les régions
+let departementsLayer = null; // Pour les départements
 
 // Load CSV data into `data`
 async function initData() {
   try {
     showLoader();
-    const codeCommunesRows = await loadCSV('./data/codecommunes.csv');
+    const codeCommunesRows = await loadCSV("./data/codecommunes.csv");
     data.codeCommunes = codeCommunesRows;
     updateProgressBar(25); // Mise à jour après le premier chargement
-
 
     // Separate dictionaries for names
     const regionNames = {};
@@ -124,7 +120,14 @@ async function initData() {
     const hierarchy = {};
 
     for (const row of codeCommunesRows) {
-      const { code_region, nom_region, code_departement, nom_departement, code_commune_INSEE, nom_commune } = row;
+      const {
+        code_region,
+        nom_region,
+        code_departement,
+        nom_departement,
+        code_commune_INSEE,
+        nom_commune,
+      } = row;
       if (nom_region === "") continue;
 
       regionNames[code_region] = nom_region;
@@ -141,21 +144,24 @@ async function initData() {
       hierarchy[code_region][code_departement][code_commune_INSEE] = []; // Initialize a list for crimes
     }
 
-    const regionFiles = new Set(codeCommunesRows.map(row => row.code_region));
-    const regionPromises = Array.from(regionFiles).map(async codeRegion => {
+    const regionFiles = new Set(codeCommunesRows.map((row) => row.code_region));
+    const regionPromises = Array.from(regionFiles).map(async (codeRegion) => {
       if (!codeRegion || isNaN(codeRegion)) return;
-      const regionData = await loadCSV(`./data/regions/region_${codeRegion}.csv`);
+      const regionData = await loadCSV(
+        `./data/regions/region_${codeRegion}.csv`
+      );
       updateProgressBar(50); // Mise à jour à 50% pendant le chargement des régions
 
-
       // Add crimes to the corresponding cities
-      regionData.forEach(row => {
+      regionData.forEach((row) => {
         const { CODGEO_2024, annee, ...rest } = row;
         const crimeData = { CODGEO_2024, annee: `20${annee}`, ...rest };
         if (hierarchy[codeRegion]) {
           for (const departmentCode in hierarchy[codeRegion]) {
             if (hierarchy[codeRegion][departmentCode][CODGEO_2024]) {
-              hierarchy[codeRegion][departmentCode][CODGEO_2024].push(crimeData);
+              hierarchy[codeRegion][departmentCode][CODGEO_2024].push(
+                crimeData
+              );
               if (annee) {
                 data.years.add(`20${annee}`);
               }
@@ -169,102 +175,200 @@ async function initData() {
     await Promise.all(regionPromises);
     updateProgressBar(75); // Mise à jour à 75% une fois que toutes les régions sont traitées
 
-
     data.hierarchy = hierarchy;
     data.names = { regionNames, departmentNames, cityNames };
     console.log(data);
-    updateProgressBar(100); 
+    updateProgressBar(100);
 
-
-    console.log('Data loaded successfully.');
+    console.log("Data loaded successfully.");
   } catch (error) {
-    console.error('Error loading CSV data:', error);
-  }finally {
+    console.error("Error loading CSV data:", error);
+  } finally {
     await delay(500);
     hideLoader();
   }
 }
 
+function updateDepartementOptions(selectedRegionCode) {
+  const departementSelect = document.getElementById("departement");
+  const villeOptions = document.getElementById("ville-options");
+  const villeInput = document.getElementById("ville");
+
+  // Reset the fields
+  departementSelect.innerHTML =
+    '<option value="">Choisissez un département</option>';
+  villeOptions.innerHTML = "";
+  villeInput.value = "";
+  villeInput.disabled = true;
+
+  // If a region is selected, populate the department options
+  if (selectedRegionCode) {
+    const departments = Object.keys(data.hierarchy[selectedRegionCode]).map(
+      (code) => ({
+        code,
+        name: data.names.departmentNames[code],
+      })
+    );
+
+    // Add department options
+    departments.forEach((department) => {
+      const option = document.createElement("option");
+      option.value = department.code;
+      option.textContent = department.name;
+      departementSelect.appendChild(option);
+    });
+
+    // Enable the department select
+    departementSelect.disabled = false;
+  } else {
+    // Disable the department select if no region is selected
+    departementSelect.disabled = true;
+  }
+}
+
+function updateCityOptions(departmentCode) {
+  const villeInput = document.getElementById("ville");
+  const villeOptions = document.getElementById("ville-options");
+
+  // Réinitialiser les options de villes
+  villeOptions.innerHTML = "";
+  villeInput.value = "";
+  villeInput.disabled = true;
+
+  if (departmentCode) {
+    // Obtenir la région associée pour parcourir la hiérarchie
+    const regionCode = data.codeCommunes.find(
+      (row) => row.code_departement === departmentCode
+    )?.code_region;
+
+    if (
+      regionCode &&
+      data.hierarchy[regionCode] &&
+      data.hierarchy[regionCode][departmentCode]
+    ) {
+      const cities = Object.keys(
+        data.hierarchy[regionCode][departmentCode]
+      ).map((code) => ({
+        code,
+        name: data.names.cityNames[code],
+      }));
+
+      // Ajouter les options des villes
+      cities.forEach((city) => {
+        const option = document.createElement("option");
+        option.value = city.code; // Utilisez le code de la ville pour la valeur
+        option.textContent = city.name;
+        villeOptions.appendChild(option);
+      });
+
+      villeInput.disabled = false; // Activer l'entrée de la ville
+    }
+  }
+}
+
 // Initialize data options in input fields
 async function initDataOptionsInInputs() {
-  const regionSelect = document.getElementById('region');
-  const departementSelect = document.getElementById('departement');
-  const villeInput = document.getElementById('ville');
-  const villeOptions = document.getElementById('ville-options');
-  const yearSelect = document.getElementById('years');
+  const regionSelect = document.getElementById("region");
+  const departementSelect = document.getElementById("departement");
+  const villeInput = document.getElementById("ville");
+  const villeOptions = document.getElementById("ville-options");
+  const yearSelect = document.getElementById("years");
 
   // regions
-  const regions = Object.keys(data.hierarchy).map(code => ({
+  const regions = Object.keys(data.hierarchy).map((code) => ({
     code,
-    name: data.names.regionNames[code]
+    name: data.names.regionNames[code],
   }));
-  regions.forEach(region => {
-    const option = document.createElement('option');
+  regions.forEach((region) => {
+    const option = document.createElement("option");
     option.value = region.code;
     option.textContent = region.name;
     regionSelect.appendChild(option);
   });
 
-
-
-
-
-  function updateDepartementOptions(selectedRegionCode) {
-    const departementSelect = document.getElementById('departement');
-    const villeOptions = document.getElementById('ville-options');
-    const villeInput = document.getElementById('ville');
-  
-    // Reset the fields
-    departementSelect.innerHTML = '<option value="">Choisissez un département</option>';
-    villeOptions.innerHTML = '';
-    villeInput.value = '';
-    villeInput.disabled = true;
-  
-    // If a region is selected, populate the department options
-    if (selectedRegionCode) {
-      const departments = Object.keys(data.hierarchy[selectedRegionCode]).map(code => ({
-        code,
-        name: data.names.departmentNames[code]
-      }));
-      
-      // Add department options
-      departments.forEach(department => {
-        const option = document.createElement('option');
-        option.value = department.code;
-        option.textContent = department.name;
-        departementSelect.appendChild(option);
-      });
-  
-      // Enable the department select
-      departementSelect.disabled = false;
-    } else {
-      // Disable the department select if no region is selected
-      departementSelect.disabled = true;
-    }
-  }
-
-
-  regionSelect.addEventListener('change', () => {
+  regionSelect.addEventListener("change", () => {
     const selectedRegionCode = regionSelect.value;
     updateDepartementOptions(selectedRegionCode); // Appel de la fonction pour mettre à jour les départements
+
+    console.log(departementsLayer);
+    console.log(regionsLayer);
+
+    if (departementsLayer) {
+      map.removeLayer(departementsLayer);
+      departementsLayer = null;
+      console.log("Départements supprimés.");
+      console.log(departementsLayer);
+    }
+    if (regionsLayer) {
+      map.removeLayer(regionsLayer);
+      regionsLayer = null;
+    }
+
+    if (selectedRegionCode === "") {
+      // Si "Choisissez une région" est sélectionné, afficher toutes les régions
+      fetchGeoJSON("regions.geojson").then((geojsonData) => {
+        if (geojsonData) {
+          regionsLayer = L.geoJSON(geojsonData, {
+            style: getPolygonStyle,
+            onEachFeature: onEachFeatureReg,
+          }).addTo(map);
+        }
+      });
+    } else {
+      // Charger et afficher les départements de la région sélectionnée
+      fetchGeoJSON("dep.geojson").then((geojsonData) => {
+        if (geojsonData) {
+          const filteredFeatures = geojsonData.features.filter(
+            (departmentFeature) => {
+              let departmentCode = departmentFeature.properties.code;
+              if (departmentCode.slice(0, 1) === "0") {
+                departmentCode = departmentCode.slice(1);
+              }
+              return data.codeCommunes.some(
+                (row) =>
+                  row.code_departement === departmentCode &&
+                  row.code_region === selectedRegionCode
+              );
+            }
+          );
+
+          const filteredGeoJSON = {
+            ...geojsonData,
+            features: filteredFeatures,
+          };
+
+          departementsLayer = L.geoJSON(filteredGeoJSON, {
+            style: getPolygonStyle,
+            onEachFeature: onEachFeatureDep,
+          }).addTo(map);
+        }
+      });
+    }
   });
 
   // onChange departement
-  departementSelect.addEventListener('change', () => {
+  departementSelect.addEventListener("change", () => {
     const selectedRegionCode = regionSelect.value;
     const selectedDepartmentCode = departementSelect.value;
 
+    if (departementsLayer) {
+      map.removeLayer(departementsLayer);
+      departementsLayer = null;  // Réinitialiser la référence
+  }
+
     // reset city field
-    villeOptions.innerHTML = '';
-    villeInput.value = '';
+    villeOptions.innerHTML = "";
+    villeInput.value = "";
 
     if (selectedDepartmentCode) {
-      const cities = Object.keys(data.hierarchy[selectedRegionCode][selectedDepartmentCode]).map(code => ({
+      const cities = Object.keys(
+        data.hierarchy[selectedRegionCode][selectedDepartmentCode]
+      ).map((code) => ({
         code,
-        name: data.names.cityNames[code]
+        name: data.names.cityNames[code],
       }));
-      cities.forEach(city => {
-        const option = document.createElement('option');
+      cities.forEach((city) => {
+        const option = document.createElement("option");
         option.value = city.name;
         villeOptions.appendChild(option);
       });
@@ -272,62 +376,93 @@ async function initDataOptionsInInputs() {
     } else {
       villeInput.disabled = true;
     }
+
+    if (selectedDepartmentCode === "") {
+      // Si "Choisissez un département" est sélectionné, afficher tous les départements de la région sélectionnée
+      fetchGeoJSON("dep.geojson").then((geojsonData) => {
+          if (geojsonData) {
+              const filteredFeatures = geojsonData.features.filter(departmentFeature => {
+                  return data.codeCommunes.some(row => row.code_departement === departmentFeature.properties.code && row.code_region === selectedRegionCode);
+              });
+
+              const filteredGeoJSON = {
+                  ...geojsonData,
+                  features: filteredFeatures
+              };
+
+              departementsLayer = L.geoJSON(filteredGeoJSON, {
+                  style: getPolygonStyle,
+                  onEachFeature: onEachFeatureDep
+              }).addTo(map);
+          }
+      });
+  }
   });
 
   // years
-  Array.from(data.years).sort().forEach(year => {
-    const option = document.createElement('option');
-    option.value = year;
-    option.textContent = year;
-    yearSelect.appendChild(option);
-  });
+  Array.from(data.years)
+    .sort()
+    .forEach((year) => {
+      const option = document.createElement("option");
+      option.value = year;
+      option.textContent = year;
+      yearSelect.appendChild(option);
+    });
 
   // checkboxes for crime types
-  document.querySelectorAll('.cercle-container').forEach(container => {
-    container.addEventListener('click', () => {
-      const checkboxId = container.getAttribute('data-checkbox-id');
+  document.querySelectorAll(".cercle-container").forEach((container) => {
+    container.addEventListener("click", () => {
+      const checkboxId = container.getAttribute("data-checkbox-id");
       const checkbox = document.getElementById(checkboxId);
       checkbox.checked = !checkbox.checked;
 
-      container.classList.toggle('selected');
+      container.classList.toggle("selected");
     });
   });
 
   // onSubmit
-  const submitButton = document.getElementById('buttonsubmit');
-  submitButton.addEventListener('click', (e) => {
+  const submitButton = document.getElementById("buttonsubmit");
+  submitButton.addEventListener("click", (e) => {
     e.preventDefault();
     if (isLoading) return;
     handleSubmit();
   });
 
-  console.log('Data options initialized successfully.');
+  console.log("Data options initialized successfully.");
 }
 
 // Handle form submission for fetching and displaying data filtered by user input
 function handleSubmit() {
-  const regionSelect = document.getElementById('region');
-  const departementSelect = document.getElementById('departement');
-  const villeInput = document.getElementById('ville');
-  const yearSelect = document.getElementById('years');
+  const regionSelect = document.getElementById("region");
+  const departementSelect = document.getElementById("departement");
+  const villeInput = document.getElementById("ville");
+  const yearSelect = document.getElementById("years");
 
   const selectedRegionCode = regionSelect.value;
   const selectedDepartmentCode = departementSelect.value;
   const selectedCityName = villeInput.value;
   const selectedYear = yearSelect.value;
 
-
   markers.clearLayers();
 
-
-  const dataFetched = fetchData(selectedYear, selectedRegionCode, selectedDepartmentCode, selectedCityName);
+  const dataFetched = fetchData(
+    selectedYear,
+    selectedRegionCode,
+    selectedDepartmentCode,
+    selectedCityName
+  );
   displayMap(dataFetched, map, markers);
 }
 
 // Fetch data based on user input
-function fetchData(selectedYear, selectedRegionCode, selectedDepartmentCode, selectedCityName) {
+function fetchData(
+  selectedYear,
+  selectedRegionCode,
+  selectedDepartmentCode,
+  selectedCityName
+) {
   if (!selectedRegionCode) {
-    alert('Veuillez sélectionner une région.');
+    alert("Veuillez sélectionner une région.");
     return;
   }
 
@@ -336,23 +471,41 @@ function fetchData(selectedYear, selectedRegionCode, selectedDepartmentCode, sel
 
   if (selectedCityName !== "") {
     console.log("fetching for city:", selectedCityName);
-    const selectedCityCode = data.codeCommunes.find(row => row.nom_commune === selectedCityName && row.code_departement === selectedDepartmentCode)?.code_commune_INSEE;
+    const selectedCityCode = data.codeCommunes.find(
+      (row) =>
+        row.nom_commune === selectedCityName &&
+        row.code_departement === selectedDepartmentCode
+    )?.code_commune_INSEE;
     if (selectedCityCode) {
-      crimes = data.hierarchy[selectedRegionCode][selectedDepartmentCode][selectedCityCode] || [];
+      crimes =
+        data.hierarchy[selectedRegionCode][selectedDepartmentCode][
+          selectedCityCode
+        ] || [];
       createRecapOnLeaflet(crimes);
     }
   } else if (selectedDepartmentCode !== "") {
     console.log("fetching for dep:", selectedDepartmentCode);
-    crimes = Object.values(data.hierarchy[selectedRegionCode][selectedDepartmentCode] || {}).flat();
+    crimes = Object.values(
+      data.hierarchy[selectedRegionCode][selectedDepartmentCode] || {}
+    ).flat();
   } else {
     console.log("fetching for region:", selectedRegionCode);
-    crimes = Object.values(Object.values(data.hierarchy[selectedRegionCode] || {}).flat()).flat();
+    crimes = Object.values(
+      Object.values(data.hierarchy[selectedRegionCode] || {}).flat()
+    ).flat();
   }
-  selectedCrimes = (selectedYear !== "") ? crimes.filter(crime => crime.annee === selectedYear) : crimes;
+  selectedCrimes =
+    selectedYear !== ""
+      ? crimes.filter((crime) => crime.annee === selectedYear)
+      : crimes;
 
-  const selectedCrimeTypes = Array.from(document.querySelectorAll('.crimeTypeCheckbox:checked')).map(cb => cb.value);
+  const selectedCrimeTypes = Array.from(
+    document.querySelectorAll(".crimeTypeCheckbox:checked")
+  ).map((cb) => cb.value);
   if (selectedCrimeTypes.length > 0) {
-    selectedCrimes = selectedCrimes.filter(crime => selectedCrimeTypes.includes(iconMapping[crime.classe]));
+    selectedCrimes = selectedCrimes.filter((crime) =>
+      selectedCrimeTypes.includes(iconMapping[crime.classe])
+    );
   }
 
   return {
@@ -360,40 +513,50 @@ function fetchData(selectedYear, selectedRegionCode, selectedDepartmentCode, sel
     department: data.names.departmentNames[selectedDepartmentCode] || "",
     city: selectedCityName,
     year: selectedYear,
-    crimes: selectedCrimes
+    crimes: selectedCrimes,
   };
 }
 
 // Fetch data for a specific departement
 function fetchDataForDepartement(departementName) {
-  const departementCode = data.codeCommunes.find(row => row.nom_departement === departementName)?.code_departement;
+  const departementCode = data.codeCommunes.find(
+    (row) => row.nom_departement === departementName
+  )?.code_departement;
   if (!departementCode) {
-    alert('Département non trouvé.');
+    alert("Département non trouvé.");
     return;
   }
 
-  const selectedYear = document.getElementById('years').value;
-  const selectedRegionCode = data.codeCommunes.find(row => row.code_departement === departementCode)?.code_region;
+  const selectedYear = document.getElementById("years").value;
+  const selectedRegionCode = data.codeCommunes.find(
+    (row) => row.code_departement === departementCode
+  )?.code_region;
   const selectedCityName = "";
 
   markers.clearLayers();
 
-  return fetchData(selectedYear, selectedRegionCode, departementCode, selectedCityName);
+  return fetchData(
+    selectedYear,
+    selectedRegionCode,
+    departementCode,
+    selectedCityName
+  );
 }
 
 // Display data on the map
 function displayMap(response, map, markers) {
   markers.clearLayers();
-  response.crimes.forEach(point => {
+  response.crimes.forEach((point) => {
     let popupContent = "";
     if (point.CODGEO_2024) {
       popupContent += "<b>" + point.classe + "</b><br>";
       popupContent += "Nombre de faits: <u>" + point.faits + "</u><br><br>";
       const city = data.names.cityNames[point.CODGEO_2024];
       popupContent += "Ville: " + city + "<br>";
-      const department = point.CODGEO_2024.length === 4
-        ? data.names.departmentNames[point.CODGEO_2024.slice(0, 1)]
-        : data.names.departmentNames[point.CODGEO_2024.slice(0, 2)];
+      const department =
+        point.CODGEO_2024.length === 4
+          ? data.names.departmentNames[point.CODGEO_2024.slice(0, 1)]
+          : data.names.departmentNames[point.CODGEO_2024.slice(0, 2)];
       popupContent += "Département: " + department + "<br>";
       popupContent += "Région: " + response.region + "<br>";
       popupContent += "Année: " + point.annee + "<br>";
@@ -407,7 +570,9 @@ function displayMap(response, map, markers) {
       popupAnchor: [0, -32],
     });
 
-    const marker = L.marker([point.latitude, point.longitude], { icon: customIcon }).bindPopup(popupContent);
+    const marker = L.marker([point.latitude, point.longitude], {
+      icon: customIcon,
+    }).bindPopup(popupContent);
     markers.addLayer(marker);
   });
   map.addLayer(markers);
@@ -427,20 +592,6 @@ async function initializeWebSite() {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //Partie Maxime Dashboards
 
 let nomCommune = "";
@@ -449,17 +600,14 @@ communesInput.addEventListener("input", (e) => {
   nomCommune = e.target.value;
 });
 
-
-
-
-
-
-let validationComparaisonCommunesDashboard = document.getElementById("validationComparaisonCommunesDashboard");
+let validationComparaisonCommunesDashboard = document.getElementById(
+  "validationComparaisonCommunesDashboard"
+);
 let tabCommunes = [];
 
 function handleClick() {
   console.log(tabCommunes);
-  if(tabCommunes.length <4){
+  if (tabCommunes.length < 4) {
     tabCommunes.push(nomCommune);
   }
 
@@ -467,11 +615,14 @@ function handleClick() {
   let tauxPourMilles = [];
 
   tabCommunes.forEach((commune) => {
-    let villeData = data.codeCommunes.find(row => row.nom_commune === commune);
+    let villeData = data.codeCommunes.find(
+      (row) => row.nom_commune === commune
+    );
     let codeRegion = villeData.code_region;
     let codeDepartement = villeData.code_departement;
     let codeCommune = villeData.code_commune_INSEE;
-    let dataCrimesVille = data.hierarchy[codeRegion][codeDepartement][codeCommune];
+    let dataCrimesVille =
+      data.hierarchy[codeRegion][codeDepartement][codeCommune];
     let annees = listeAnneeCrimes(dataCrimesVille);
 
     maxAnneeParVille.push(annees.length);
@@ -479,11 +630,13 @@ function handleClick() {
 
     let tauxVille = {
       commune: commune,
-      taux: []
+      taux: [],
     };
 
     annees.forEach((anneee) => {
-      let filteredByYear = dataCrimesVille.filter((crime) => crime.annee == anneee);
+      let filteredByYear = dataCrimesVille.filter(
+        (crime) => crime.annee == anneee
+      );
       let nombrePopVille = parseInt(filteredByYear[0].POP);
 
       let nombreCrimes = 0;
@@ -491,8 +644,11 @@ function handleClick() {
         nombreCrimes += parseInt(typeCrime.faits);
       });
 
-      let tauxPourMille = nombreCrimes === 0 ? 0 : (nombrePopVille / nombreCrimes) * 1000;
-      console.log(`Ville : ${commune}, année : ${anneee}, nombre de crimes : ${nombreCrimes}, tauxPourMille : ${tauxPourMille}`);
+      let tauxPourMille =
+        nombreCrimes === 0 ? 0 : (nombrePopVille / nombreCrimes) * 1000;
+      console.log(
+        `Ville : ${commune}, année : ${anneee}, nombre de crimes : ${nombreCrimes}, tauxPourMille : ${tauxPourMille}`
+      );
 
       tauxVille.taux.push(tauxPourMille);
     });
@@ -521,41 +677,6 @@ function handleClick() {
 }
 
 validationComparaisonCommunesDashboard.addEventListener("click", handleClick);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const createRecapOnLeaflet = (crimes) => {
   console.log(crimes);
@@ -597,7 +718,9 @@ const createRecapOnLeaflet = (crimes) => {
   );
 
   // Vérifier si un récapitulatif existe déjà et le supprimer
-  let existingRecapControl = map._controlCorners["topright"].querySelector(".divRecapHautDroiteLeaflet");
+  let existingRecapControl = map._controlCorners["topright"].querySelector(
+    ".divRecapHautDroiteLeaflet"
+  );
   if (existingRecapControl) {
     existingRecapControl.remove();
   }
@@ -608,7 +731,10 @@ const createRecapOnLeaflet = (crimes) => {
   customDiv.onAdd = function (map) {
     let div = L.DomUtil.create("div", "divRecapHautDroiteLeaflet");
 
-    let totalCrimes = Object.values(crimeTotals).reduce((acc, val) => acc + val, 0);
+    let totalCrimes = Object.values(crimeTotals).reduce(
+      (acc, val) => acc + val,
+      0
+    );
 
     div.innerHTML = `
         Nombre total de crimes : ${totalCrimes}<br>
@@ -620,12 +746,11 @@ const createRecapOnLeaflet = (crimes) => {
   customDiv.addTo(map);
 };
 
-
-
-
-const createDashboardsComparaisonVille = (tauxPourMilles, prepArrAnneeDashboard) => {
-
-  prepArrAnneeDashboard = prepArrAnneeDashboard.map(item => item.toString());
+const createDashboardsComparaisonVille = (
+  tauxPourMilles,
+  prepArrAnneeDashboard
+) => {
+  prepArrAnneeDashboard = prepArrAnneeDashboard.map((item) => item.toString());
 
   const canvasExistant = document.getElementById("dashboardCanvas");
   if (canvasExistant) {
@@ -635,7 +760,7 @@ const createDashboardsComparaisonVille = (tauxPourMilles, prepArrAnneeDashboard)
 
   customDiv.onAdd = function (map) {
     let div = L.DomUtil.create("div", "dashboardBasGaucheLeaflet");
-    
+
     // Ajouter le carré rouge en haut à droite
     div.innerHTML = `
       <div style="position: relative;">
@@ -644,7 +769,7 @@ const createDashboardsComparaisonVille = (tauxPourMilles, prepArrAnneeDashboard)
         </canvas>
       </div>
     `;
-    
+
     return div;
   };
 
@@ -652,10 +777,10 @@ const createDashboardsComparaisonVille = (tauxPourMilles, prepArrAnneeDashboard)
 
   // Ajouter un écouteur d'événement sur le carré rouge
   const redSquare = document.getElementById("redSquare");
-  const divContainer = redSquare ? redSquare.closest('div') : null; // Récupère le parent du carré rouge
+  const divContainer = redSquare ? redSquare.closest("div") : null; // Récupère le parent du carré rouge
 
   if (redSquare && divContainer) {
-    redSquare.addEventListener('click', () => {
+    redSquare.addEventListener("click", () => {
       tabCommunes = [];
       const canvasExistant = document.getElementById("dashboardCanvas");
       if (canvasExistant) {
@@ -665,11 +790,7 @@ const createDashboardsComparaisonVille = (tauxPourMilles, prepArrAnneeDashboard)
     });
   }
 
-  const couleursVilles = [
-    "#A8385C85",
-    "#090D3385",
-    "#ED671485",
-  ];
+  const couleursVilles = ["#A8385C85", "#090D3385", "#ED671485"];
 
   setTimeout(() => {
     const ctx = document.getElementById("dashboardCanvas").getContext("2d");
@@ -719,7 +840,6 @@ const createDashboardsComparaisonVille = (tauxPourMilles, prepArrAnneeDashboard)
   }, 100);
 };
 
-
 const listeAnneeCrimes = (dataCrimesVille) => {
   let anneestab = [];
   let uniqueAnneesTab = [];
@@ -744,42 +864,7 @@ const listeAnneeCrimes = (dataCrimesVille) => {
     }
   }
   return uniqueAnneesTab;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Variables pour stocker les couches GeoJSON
-let regionsLayer = null;  // Pour les régions
-let departementsLayer = null;  // Pour les départements
+};
 
 // Fonction pour charger les données GeoJSON
 const fetchGeoJSON = async (url) => {
@@ -799,9 +884,9 @@ const fetchGeoJSON = async (url) => {
 const getPolygonStyle = () => {
   return {
     color: "#3388ff", // Couleur des contours
-    weight: 2,        // Poids des contours
+    weight: 2, // Poids des contours
     fillColor: "#6baed6",
-    fillOpacity: 0.6
+    fillOpacity: 0.6,
   };
 };
 
@@ -811,52 +896,42 @@ const onEachFeatureReg = (feature, layer) => {
     mouseover: (e) => {
       const target = e.target;
       target.setStyle({
-        weight: 5, // Augmente le poids au survol
-        color: "#ff7800", // Change la couleur des contours
-        fillOpacity: 0.7
+        weight: 5,
+        color: "#ff7800",
+        fillOpacity: 0.7,
       });
-      target.bringToFront(); // Amène l'élément en avant
+      target.bringToFront();
     },
     mouseout: (e) => {
-      e.target.setStyle(getPolygonStyle()); // Réinitialise le style
+      e.target.setStyle(getPolygonStyle());
     },
     click: () => {
-      // Supprimer la couche des départements si elle existe
+      const regionCode = feature.properties.code;
+
+      // Supprimer les couches existantes
       if (departementsLayer) {
-        map.removeLayer(departementsLayer);  // Supprime la couche des départements existante
+        map.removeLayer(departementsLayer);
+        departementsLayer = null;
       }
-
-      // Supprimer la couche des régions si elle existe
       if (regionsLayer) {
-        map.removeLayer(regionsLayer); // Supprime la couche des régions
+        map.removeLayer(regionsLayer);
+        regionsLayer = null;
       }
 
-      // Charger et afficher les départements au clic
-      fetchGeoJSON("dep.geojson").then((geojsonData) => {
-        if (geojsonData) {
-          departementsLayer = L.geoJSON(geojsonData, {
-            style: getPolygonStyle, // Appliquer le style initial
-            onEachFeature: onEachFeatureDep // Configurer les interactions
-          }).addTo(map); // Ajouter la couche des départements à la carte
-        }
-      });
-    }
+      const regionSelect = document.getElementById("region");
+      regionSelect.value = regionCode;
+      updateDepartementOptions(regionCode);
+      regionSelect.dispatchEvent(new Event("change"));
+    },
   });
-  // Ajouter un tooltip avec le nom de la région ou département
+
   if (feature.properties && feature.properties.nom) {
     layer.bindTooltip(feature.properties.nom, {
       permanent: false,
-      direction: "center"
+      direction: "center",
     });
   }
 };
-
-
-
-
-
-
-
 
 const onEachFeatureDep = (feature, layer) => {
   layer.on({
@@ -865,7 +940,7 @@ const onEachFeatureDep = (feature, layer) => {
       target.setStyle({
         weight: 5, // Augmente le poids au survol
         color: "#ff7800", // Change la couleur des contours
-        fillOpacity: 0.7
+        fillOpacity: 0.7,
       });
       target.bringToFront(); // Amène l'élément en avant
     },
@@ -873,14 +948,25 @@ const onEachFeatureDep = (feature, layer) => {
       e.target.setStyle(getPolygonStyle()); // Réinitialise le style
     },
     click: () => {
-      alert(`${feature.properties.nom}`)
-    }
+      let departmentCode = feature.properties.code;
+      if (departmentCode.slice(0, 1) === "0") {
+        departmentCode = departmentCode.slice(1);
+      }
+      console.log("Département sélectionné:", departmentCode);
+
+      const departementSelect = document.getElementById("departement");
+      departementSelect.value = departmentCode;
+
+      updateCityOptions(departmentCode);
+
+      departementSelect.dispatchEvent(new Event("change"));
+    },
   });
   // Ajouter un tooltip avec le nom de la région ou département
   if (feature.properties && feature.properties.nom) {
     layer.bindTooltip(feature.properties.nom, {
       permanent: false,
-      direction: "center"
+      direction: "center",
     });
   }
 };
@@ -890,31 +976,10 @@ fetchGeoJSON("regions.geojson").then((geojsonData) => {
   if (geojsonData) {
     regionsLayer = L.geoJSON(geojsonData, {
       style: getPolygonStyle, // Appliquer le style initial
-      onEachFeature: onEachFeatureReg // Configurer les interactions
+      onEachFeature: onEachFeatureReg, // Configurer les interactions
     }).addTo(map); // Ajouter la couche des régions à la carte
   }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // main
 initializeWebSite();

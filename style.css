@@ -2,7 +2,7 @@
   --white: white;
   --pink: #c01b1b;
   --lightGrey: #ccc;
-  --grey: grey;
+  --grey: #808080;
   --bg: #8e9eab;
   --accent: #314453;
   --black: #161616;
@@ -68,6 +68,8 @@ label {
   font-weight: bold;
   font-size: 16px;
 }
+
+
 
 .yearInput {
   display: flex;
@@ -148,6 +150,21 @@ option {
   border: 4px solid var(--grey);
 }
 
+.cercle :hover{
+    transform: scale(1.3);
+}
+
+.cercle{
+    transition: 0.3s ease-in-out;
+}
+
+
+
+.cercle2 img{
+    width: 20px;
+    height: 20px;
+}
+
 .departementInput {
   display: block;
   height: 0;
@@ -199,11 +216,52 @@ option {
 }
 
 .cercle-container {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  cursor: pointer;
-}
+    display: flex;
+    flex-direction: column; /* Aligne verticalement les éléments */
+    align-items: start;
+    gap: 3px; /* Espacement entre les éléments */
+    cursor: pointer;
+    position: relative;
+  }
+  
+  .cerclerow {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .infoplus {
+    width: 100%;
+    height: 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    gap: 6px;
+    transition: 0.3s ease-in-out;
+    overflow: hidden;
+  }
+    
+  .plus{
+    position: absolute;
+    top: 0;
+    right: -20px;
+    transition: 0.3s ease-in-out;
+  }
+
+  .plus :hover{
+    transform: scale(1.2);
+  }
+
+  .sous-element{
+    display: flex;
+    gap: 7px;
+    align-items: center;
+
+  }
+
+  .sous-element p{
+    font-size: 12px;
+  }
 
 .buttonsubmit2 {
   margin-top: 6px;
@@ -214,6 +272,8 @@ option {
   font-weight: bold;
   font-size: 14px;
 }
+
+
 
 .typesCrimesInput {
   margin-top: 14px;

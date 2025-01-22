@@ -68,3 +68,45 @@ cercleContainers.forEach(container => {
     });
 });
 
+
+
+document.querySelectorAll('.plus1').forEach(plusElement => {
+    plusElement.addEventListener('click', function(event) {
+        event.stopPropagation();
+
+      const infoplus = this.closest('.cercle-container').querySelector('.infoplus1');
+      if (infoplus.style.height === '0px' || !infoplus.style.height) {
+        infoplus.style.height = infoplus.scrollHeight + 'px'; // Définir la hauteur actuelle
+      } else {
+        infoplus.style.height = '0px'; // Réduire à zéro
+      }
+    });
+  });
+
+
+  document.querySelectorAll('.plus2').forEach(plusElement => {
+    plusElement.addEventListener('click', function(event) {
+        event.stopPropagation();
+
+      const infoplus = this.closest('.cercle-container').querySelector('.infoplus2');
+      if (infoplus.style.height === '0px' || !infoplus.style.height) {
+        infoplus.style.height = infoplus.scrollHeight + 'px'; // Définir la hauteur actuelle
+      } else {
+        infoplus.style.height = '0px'; // Réduire à zéro
+      }
+    });
+  });
+
+
+  document.querySelectorAll('.plus4').forEach(plusElement => {
+    plusElement.addEventListener('click', function(event) {
+        event.stopPropagation();
+
+      const infoplus = this.closest('.cercle-container').querySelector('.infoplus4');
+      if (infoplus.style.height === '0px' || !infoplus.style.height) {
+        infoplus.style.height = infoplus.scrollHeight + 'px'; // Définir la hauteur actuelle
+      } else {
+        infoplus.style.height = '0px'; // Réduire à zéro
+      }
+    });
+  });

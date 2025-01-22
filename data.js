@@ -181,7 +181,6 @@ async function initData() {
 
     data.hierarchy = hierarchy;
     data.names = { regionNames, departmentNames, cityNames };
-    console.log(data);
     updateProgressBar(100);
 
     console.log("Data loaded successfully.");
@@ -294,14 +293,12 @@ async function initDataOptionsInInputs() {
     const selectedRegionCode = regionSelect.value;
     updateDepartementOptions(selectedRegionCode); // Appel de la fonction pour mettre à jour les départements
 
-    console.log(departementsLayer);
-    console.log(regionsLayer);
+
 
     if (departementsLayer) {
       map.removeLayer(departementsLayer);
       departementsLayer = null;
       console.log("Départements supprimés.");
-      console.log(departementsLayer);
     }
     if (regionsLayer) {
       map.removeLayer(regionsLayer);
@@ -623,10 +620,19 @@ let validationComparaisonCommunesDashboard = document.getElementById(
 let tabCommunes = [];
 
 function handleClick() {
-  console.log(tabCommunes);
-  if (tabCommunes.length < 4) {
-    tabCommunes.push(nomCommune);
+  console.log("TabCommunes avant ajout:", tabCommunes);
+
+  if (nomCommune && !tabCommunes.includes(nomCommune)) {
+    if (tabCommunes.length < 4) {
+      tabCommunes.push(nomCommune);
+    } else {
+      console.log("Nombre maximum de communes atteint.");
+      return;
+    }
   }
+
+  nomCommune = "";
+  communesInput.value = ""; 
 
   let maxAnneeParVille = [];
   let tauxPourMilles = [];
@@ -643,8 +649,6 @@ function handleClick() {
     let annees = listeAnneeCrimes(dataCrimesVille);
 
     maxAnneeParVille.push(annees.length);
-    console.log(maxAnneeParVille);
-
     let tauxVille = {
       commune: commune,
       taux: [],
@@ -663,11 +667,10 @@ function handleClick() {
 
       let tauxPourMille =
         nombreCrimes === 0 ? 0 : (nombrePopVille / nombreCrimes) * 1000;
-      console.log(
-        `Ville : ${commune}, année : ${anneee}, nombre de crimes : ${nombreCrimes}, tauxPourMille : ${tauxPourMille}`
-      );
 
-      tauxVille.taux.push(tauxPourMille);
+      if(tauxPourMille > 0){
+        tauxVille.taux.push(tauxPourMille);
+      }
     });
 
     tauxPourMilles.push(tauxVille);
@@ -796,12 +799,19 @@ const createDashboardsComparaisonVille = (
   prepArrAnneeDashboard
 ) => {
   prepArrAnneeDashboard = prepArrAnneeDashboard.map((item) => item.toString());
+  console.log(tauxPourMilles)
 
-  const canvasExistant = document.getElementById("dashboardCanvas");
-  if (canvasExistant) {
-    canvasExistant.parentElement.remove();
-  }
+
+  const existingDashboard = document.querySelector(".dashboardBasGaucheLeaflet");
+if (existingDashboard) {
+  existingDashboard.remove();
+}
+
   let customDiv = L.control({ position: "bottomleft" });
+
+  if(tabCommunes.length <= 0){
+    return 0;
+  }
 
   customDiv.onAdd = function (map) {
     let div = L.DomUtil.create("div", "dashboardBasGaucheLeaflet");
@@ -809,7 +819,7 @@ const createDashboardsComparaisonVille = (
     // Ajouter le carré rouge en haut à droite
     div.innerHTML = `
       <div style="position: relative;">
-        <div id="redSquare" style="position: absolute; border-radius:100%; top: -30px; right: -30px; width: 55px; height: 55px; background-color: #A8385C; display: flex; justify-content:center; align-items:center;"> <img src="./images/croix.svg" style="width : 35px; height : 35px;">  </div>
+        <div id="redSquare" style="position: absolute; border-radius:100%; top: -30px; right: -30px; width: 55px; height: 55px; background-color: #c01b1b; display: flex; justify-content:center; align-items:center; cursor: pointer"> <img src="./images/croix.svg" style="width : 35px; height : 35px;">  </div>
         <canvas id="dashboardCanvas" width="700" height="350" style="border:1px solid #000000;">
         </canvas>
       </div>
@@ -835,7 +845,7 @@ const createDashboardsComparaisonVille = (
     });
   }
 
-  const couleursVilles = ["#A8385C85", "#090D3385", "#ED671485"];
+  const couleursVilles = ["#c01b1b85", "#090D3385", "#ED671485", "#16161685"];
 
   setTimeout(() => {
     const ctx = document.getElementById("dashboardCanvas").getContext("2d");

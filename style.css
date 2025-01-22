@@ -141,7 +141,7 @@ option {
 
 
 .departementInput {
-    display: block; 
+    display: block;
     height: 0;
     opacity: 0;
     overflow: hidden;
@@ -149,13 +149,13 @@ option {
 }
 
 .departementInput.active {
-    height: auto; 
+    height: auto;
     opacity: 1;
 }
 
 
 .villeInput {
-    display: block; 
+    display: block;
     height: 0;
     opacity: 0;
     overflow: hidden;
@@ -163,7 +163,7 @@ option {
 }
 
 .villeInput.active {
-    height: auto; 
+    height: auto;
     opacity: 1;
 }
 
@@ -172,21 +172,25 @@ option {
 /* Ajouter cette règle pour l'animation progressive avec scale et grayscale */
 .typesCrimesInput img {
     width: 30px;
-    transition: filter 0.3s ease, transform 0.3s ease; 
+    transition: filter 0.3s ease, transform 0.3s ease;
     transform: scale(1.0);
 }
 
 .cercle-container.clicked img {
-    transform: scale(0.85); /* Légère réduction de la taille de l'image */
-    filter: grayscale(100%); /* Appliquer l'effet gris */
+    transform: scale(0.85);
+    /* Légère réduction de la taille de l'image */
+    filter: grayscale(100%);
+    /* Appliquer l'effet gris */
 }
 
 .cercle-container.clicked .textLegend {
-    opacity: 20%; /* Réduire l'opacité du texte quand le conteneur est cliqué */
+    opacity: 20%;
+    /* Réduire l'opacité du texte quand le conteneur est cliqué */
 }
 
 .cercle-container .textLegend {
-    transition: opacity 0.3s ease; /* Ajouter une transition pour l'effet d'opacité */
+    transition: opacity 0.3s ease;
+    /* Ajouter une transition pour l'effet d'opacité */
 }
 
 
@@ -199,7 +203,7 @@ option {
     cursor: pointer;
 }
 
-.buttonsubmit2{
+.buttonsubmit2 {
     margin-top: 4px;
 }
 
@@ -277,7 +281,7 @@ h1 {
     background-color: var(--white);
 }
 
-.buttonsubmit{
+.buttonsubmit {
     background-color: var(--pink);
     color: var(--white);
     padding: 0.5em 0;
@@ -300,23 +304,25 @@ h1 {
     border-radius: 12px;
 }
 
-@keyframes apparition{
-    0%{
+@keyframes apparition {
+    0% {
         opacity: 0%;
         transform: scale(0);
     }
-    100%{
+
+    100% {
         opacity: 100%;
         transform: scale(1);
 
     }
 }
 
-@keyframes translateY{
-    0%{
+@keyframes translateY {
+    0% {
         transform: translateY(100%);
     }
-    100%{
+
+    100% {
         transform: translateY(100%);
     }
 }
@@ -346,7 +352,7 @@ h1 {
     bottom: 0px;
     left: 0px;
     z-index: 999;
-    
+
 }
 
 
@@ -361,35 +367,39 @@ h1 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 1); /* Initialement, l'opacité est à 1 (complètement opaque) */
+    background: rgba(0, 0, 0, 1);
+    /* Initialement, l'opacité est à 1 (complètement opaque) */
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 1.5rem;
-    z-index: 1000;
-    flex-direction: column; 
+    z-index: 9999!important;
+    flex-direction: column;
     transition: background-color 0.5s ease;
 
-  }
-  
-  .progress-container {
+}
+
+.progress-container {
     width: 80%;
     background-color: #f3f3f3;
     border-radius: 10px;
     height: 30px;
-    margin-bottom: 20px; 
-  }
-  
-  .progress-bar {
+    margin-bottom: 20px;
+}
+
+.progress-bar {
     height: 100%;
-    width: 0%; 
-    background-color: #A8385C; 
+    width: 0%;
+    background-color: #A8385C;
     border-radius: 10px;
     transition: width 0.5s ease-out;
-  }
-  
-  .hidden {
+}
+
+.hidden {
     display: none;
-  }
-  
+}
+
+.leaflet-control {
+    z-index: 401!important;
+}

@@ -1,451 +1,426 @@
 :root {
-    --white: white;
-    --pink: #c01b1b;
-    --lightGrey: #ccc;
-    --grey: grey;
-    --bg: #8e9eab;
-    --accent : #314453;
-    --black: #161616;
-    --title: #b31616;
+  --white: white;
+  --pink: #c01b1b;
+  --lightGrey: #ccc;
+  --grey: grey;
+  --bg: #8e9eab;
+  --accent: #314453;
+  --black: #161616;
+  --title: #b31616;
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    min-height: 100vh;
-    background: #f1f1f1;
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    grid-template-rows: 120px 1fr;
-    grid-template-areas:
-        "leftbar main"
-        "leftbar main";
-    font-family: sans-serif;
-    position: relative;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  min-height: 100vh;
+  background: #f1f1f1;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  grid-template-rows: 120px 1fr;
+  grid-template-areas:
+    "leftbar main"
+    "leftbar main";
+  font-family: sans-serif;
+  position: relative;
 }
 
-
 main {
-    grid-area: main;
-    padding-top: 70px;
-    padding-left: 30px;
-    padding-right: 30px;
-    padding-bottom: 30px;
-    position: relative;
+  grid-area: main;
+  padding-top: 70px;
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-bottom: 30px;
+  position: relative;
 }
 
 h2 {
-    color: var(--pink);
-    font-size: 26px;
-    display: flex;
-    justify-content: center;
-    padding-bottom: 6px;
-    padding-top: 6px;
-    padding-right: 5px;
-    padding-left: 5px;
-    font-weight: bold;
+  color: var(--pink);
+  font-size: 26px;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 6px;
+  padding-top: 6px;
+  padding-right: 5px;
+  padding-left: 5px;
+  font-weight: bold;
 }
 
 .leftbar {
-    grid-area: leftbar;
-    position: relative;
-    padding: 40px;
-
+  grid-area: leftbar;
+  position: relative;
+  padding: 40px;
 }
 
-
-
 .leftbar::before {
-    content: "";
-    position: absolute;
-    right: 0;
-    height: 80%;
-    top: 10%;
-    width: 2px;
-    background-color: var(--grey);
-    opacity: 50%;
+  content: "";
+  position: absolute;
+  right: 0;
+  height: 80%;
+  top: 10%;
+  width: 2px;
+  background-color: var(--grey);
+  opacity: 50%;
 }
 
 label {
-    color: var(--black);
-    font-weight: bold;
-    font-size: 16px;
+  color: var(--black);
+  font-weight: bold;
+  font-size: 16px;
 }
 
 .yearInput {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Conteneur pour le select et le chevron */
 .select-container {
-    position: relative;
-    display: inline-block;
-    width: 100%;
+  position: relative;
+  display: inline-block;
+  width: 100%;
 }
 
 select {
-    background: var(--white);
-    color: var(--black);
-    padding: 4px 30px 4px 10px;
-    border-radius: 4px;
-    margin-top: 2px;
-    appearance: none;
-    width: 100%;
-    border: 1px solid var(--pink);
-    font-size: 16px;
-    transition: ease-in-out 0.3s;
+  background: var(--white);
+  color: var(--black);
+  padding: 4px 30px 4px 10px;
+  border-radius: 4px;
+  margin-top: 2px;
+  appearance: none;
+  width: 100%;
+  border: 1px solid var(--pink);
+  font-size: 16px;
+  transition: ease-in-out 0.3s;
 }
-#communes{
-    color: var(--black);
+#communes {
+  color: var(--black);
 }
 input {
-    padding: 5px 30px 5px 10px;
-    border-radius: 4px;
-    background-color: var(--white);
-    margin-top: 2px;
-    width: 80%;
-    appearance: none;
-    border: 1px solid var(--pink);
-    transition: ease-in-out 0.3s;
-    color: var(--black);
+  padding: 5px 30px 5px 10px;
+  border-radius: 4px;
+  background-color: var(--white);
+  margin-top: 2px;
+  width: 80%;
+  appearance: none;
+  border: 1px solid var(--pink);
+  transition: ease-in-out 0.3s;
+  color: var(--black);
 }
 
 #ville-options {
-    height: 150px;
-    overflow-y: auto;
+  height: 150px;
+  overflow-y: auto;
 }
 
 select.touched {
-    color: var(--black);
+  color: var(--black);
 }
 
 option {
-    color: var(--grey);
+  color: var(--grey);
 }
 
 .chevron {
-    position: absolute;
-    top: 55%;
-    right: 10px;
-    transform: translateY(-50%);
-    pointer-events: none;
-    width: 20px;
-    height: 20px;
+  position: absolute;
+  top: 55%;
+  right: 10px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  width: 20px;
+  height: 20px;
 }
 
 .inputs {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .cercle {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background-color: var(--white);
-    border: 4px solid var(--grey);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: var(--white);
+  border: 4px solid var(--grey);
 }
 
-
 .departementInput {
-    display: block;
-    height: 0;
-    opacity: 0;
-    overflow: hidden;
-    transition: height 0.3s ease, opacity 0.3s ease;
+  display: block;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: height 0.3s ease, opacity 0.3s ease;
 }
 
 .departementInput.active {
-    height: auto;
-    opacity: 1;
+  height: auto;
+  opacity: 1;
 }
 
-
 .villeInput {
-    display: block;
-    height: 0;
-    opacity: 0;
-    overflow: hidden;
-    transition: height 0.3s ease, opacity 0.3s ease;
+  display: block;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: height 0.3s ease, opacity 0.3s ease;
 }
 
 .villeInput.active {
-    height: auto;
-    opacity: 1;
+  height: auto;
+  opacity: 1;
 }
-
-
 
 /* Ajouter cette règle pour l'animation progressive avec scale et grayscale */
 .typesCrimesInput img {
-    width: 30px;
-    transition: filter 0.3s ease, transform 0.3s ease;
-    transform: scale(1.0);
+  width: 30px;
+  transition: filter 0.3s ease, transform 0.3s ease;
+  transform: scale(1);
 }
 
 .cercle-container.clicked img {
-    transform: scale(0.85);
-    /* Légère réduction de la taille de l'image */
-    filter: grayscale(100%);
-    /* Appliquer l'effet gris */
+  transform: scale(0.85);
+  /* Légère réduction de la taille de l'image */
+  filter: grayscale(100%);
+  /* Appliquer l'effet gris */
 }
 
 .cercle-container.clicked .textLegend {
-    opacity: 20%;
-    /* Réduire l'opacité du texte quand le conteneur est cliqué */
+  opacity: 20%;
+  /* Réduire l'opacité du texte quand le conteneur est cliqué */
 }
 
 .cercle-container .textLegend {
-    transition: opacity 0.3s ease;
-    /* Ajouter une transition pour l'effet d'opacité */
+  transition: opacity 0.3s ease;
+  /* Ajouter une transition pour l'effet d'opacité */
 }
 
-
-
-
 .cercle-container {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
 }
 
 .buttonsubmit2 {
-    margin-top: 6px;
+  margin-top: 6px;
 }
 
 .textLegend {
-    color: var(--black);
-    font-weight: bold;
-    font-size: 14px;
+  color: var(--black);
+  font-weight: bold;
+  font-size: 14px;
 }
 
 .typesCrimesInput {
-    margin-top: 14px;
+  margin-top: 14px;
 }
 
 .typesCrimesInput2 {
-    margin-top: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .crimeTypeCheckbox {
-    display: none;
+  display: none;
 }
 
 .separator {
-    margin-top: 30px;
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
-    background-color: var(--pink);
-    height: 2px;
-    display: block;
+  margin-top: 30px;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: var(--pink);
+  height: 2px;
+  display: block;
 }
 
-
-.comparaisonZone{
-    margin-top: 16px;
+.comparaisonZone {
+  margin-top: 16px;
 }
 .comparaisonInput {
-    margin-top: 14px;
+  margin-top: 14px;
 }
 
-
-
-
 .inputComm {
-    margin-top: 4px;
+  margin-top: 4px;
 }
 
 .phantom2 {
-    margin-top: 4px;
-    display: block;
+  margin-top: 4px;
+  display: block;
 }
 
 h1 {
-    color: var(--pink);
-    padding: 8px;
-    border-radius: 6px;
-    background-color: var(--white);
+  color: var(--pink);
+  padding: 8px;
+  border-radius: 6px;
+  background-color: var(--white);
 }
 
 .buttonsubmit {
-    background-color: var(--pink);
-    border: 1px solid var(--white);
-    color: var(--white);
-    padding: 0.5em 0;
-    width: 100%;
-    font-weight: bold;
-    border-radius: 4px;
-    cursor: pointer;
+  background-color: var(--pink);
+  border: 1px solid var(--white);
+  color: var(--white);
+  padding: 0.5em 0;
+  width: 100%;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .choixVilleouDep {
-    margin-top: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 #map {
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
 }
 
 @keyframes apparition {
-    0% {
-        opacity: 0%;
-        transform: scale(0);
-    }
+  0% {
+    opacity: 0%;
+    transform: scale(0);
+  }
 
-    100% {
-        opacity: 100%;
-        transform: scale(1);
-
-    }
+  100% {
+    opacity: 100%;
+    transform: scale(1);
+  }
 }
 
 @keyframes translateY {
-    0% {
-        transform: translateY(100%);
-    }
+  0% {
+    transform: translateY(100%);
+  }
 
-    100% {
-        transform: translateY(100%);
-    }
+  100% {
+    transform: translateY(100%);
+  }
 }
 
 .divRecapHautDroiteLeaflet {
-    background-color: var(--white);
-    border: 3px solid var(--pink);
-    color: var(--black);
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 16px;
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    z-index: 1000;
-    animation: apparition 0.7s ease-in-out;
-    transform-origin: top right;
+  background-color: var(--white);
+  border: 3px solid var(--pink);
+  color: var(--black);
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  z-index: 1000;
+  animation: apparition 0.7s ease-in-out;
+  transform-origin: top right;
 }
 
 .dashboardBasGaucheLeaflet {
-    background-color: var(--white);
-    color: var(--pink);
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 16px;
-    position: absolute;
-    bottom: 0px;
-    left: 0px;
-    z-index: 999;
-
+  background-color: var(--white);
+  color: var(--pink);
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 16px;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  z-index: 999;
 }
-
 
 .leaflet-centered-title {
-    position: absolute;
-    background-color: var(--grey);
-    color: var(--white);
-    top: 0;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 5px;
-    padding-right: 5px;
-    border-radius: 4px;
-    padding: 5px 10px; /* Ajoutez un peu de padding pour rendre le titre plus lisible */
-    font-size: 24px;
-    font-weight: bold; /* Vous pouvez ajuster la taille du texte */
-    border: 1px solid var(--black);
+  position: absolute;
+  background-color: var(--grey);
+  color: var(--white);
+  top: 0;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-radius: 4px;
+  padding: 5px 10px; /* Ajoutez un peu de padding pour rendre le titre plus lisible */
+  font-size: 24px;
+  font-weight: bold; /* Vous pouvez ajuster la taille du texte */
+  border: 1px solid var(--black);
 }
 
-
-
-
-
-
-
 .loader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 1);
-    /* Initialement, l'opacité est à 1 (complètement opaque) */
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.5rem;
-    z-index: 9999!important;
-    flex-direction: column;
-    transition: background-color 0.5s ease;
-
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 1);
+  /* Initialement, l'opacité est à 1 (complètement opaque) */
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  z-index: 9999 !important;
+  flex-direction: column;
+  transition: background-color 0.5s ease;
 }
 
 .progress-container {
-    width: 80%;
-    background-color: var(--white);
-    border-radius: 10px;
-    height: 30px;
-    margin-bottom: 20px;
+  width: 80%;
+  background-color: var(--white);
+  border-radius: 10px;
+  height: 30px;
+  margin-bottom: 20px;
 }
 
 .progress-bar {
-    height: 100%;
-    width: 0%;
-    background-color: var(--pink);
-    border-radius: 10px;
-    transition: width 0.5s ease-out;
+  height: 100%;
+  width: 0%;
+  background-color: var(--pink);
+  border-radius: 10px;
+  transition: width 0.5s ease-out;
 }
 
 .hidden {
-    display: none;
+  display: none;
 }
 
 .leaflet-control {
-    z-index: 401!important;
+  z-index: 401 !important;
 }
 
 .rain-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none; /* Empêche les interactions avec les gouttes */
-    overflow: hidden;
-    z-index: 1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Empêche les interactions avec les gouttes */
+  overflow: hidden;
+  z-index: 1;
 }
 
 .raindrop {
-    position: absolute;
-    width: 5px;
-    height: 15px;
-    background-color: rgba(223, 28, 45, 0.7); /* Rouge translucide */
-    border-radius: 50%;
-    animation: fall linear infinite;
+  position: absolute;
+  width: 5px;
+  height: 15px;
+  background-color: rgba(223, 28, 45, 0.7); /* Rouge translucide */
+  border-radius: 50%;
+  animation: fall linear infinite;
 }
 
 @keyframes fall {
-    0% {
-        transform: translateY(-100px);
-        opacity: 0.8;
-    }
-    100% {
-        transform: translateY(100vh);
-        opacity: 0;
-    }
+  0% {
+    transform: translateY(-100px);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
 }

@@ -25,10 +25,12 @@
         </div>
         Chargement en cours...
       </div>   
-      
-    <header>
-        <h1>Datavisualisation : Les crimes en France</h1>
-    </header>
+
+      <div class="rain-container"></div>
+
+
+
+    
     
     <div class="leftbar">
         <h2>Filtrer</h2>
@@ -112,7 +114,7 @@
 
                 <div class="cercle-container" data-checkbox-id="stealGun">
                     <div class="cercle">
-                        <img src="./images/legendes/gun-crime-svgrepo-com.svg" alt="Icone vols avec armes">
+                        <img src="./images/legendes/gun-svgrepo-com.svg" alt="Icone vols avec armes">
                     </div>
                     <label class="textLegend" for="stealGun">Vols avec armes</label>
                     <input type="checkbox" id="stealGun" class="crimeTypeCheckbox" value="stealGun" checked>
@@ -134,7 +136,7 @@
             <div class="comparaisonInput">
                 <div class="inputComm" id="inputComm">
                     <label for="">Par communes : </label>
-                    <input type="text" id="communes">
+                    <input type="text" id="communes" placeholder="Bordeaux">
                 </div>
 
                 <button type="submit" id="validationComparaisonCommunesDashboard"

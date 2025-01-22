@@ -62,18 +62,22 @@ const data = {
 };
 let isLoading = true;
 const layer = L.tileLayer(
-  "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}@2x.png",
+  "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}@2x.png",
   {
     attribution:
       '&copy; <a href="https://carto.com/attributions">CartoDB</a> contributors',
   }
 );
+
 const initialCoordinates = { lat: 48.66616, lng: 2.842485 };
 const map = L.map("map", {
   center: [initialCoordinates.lat, initialCoordinates.lng],
   zoom: 7,
   layers: [layer],
 });
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+map.zoomControl.remove();
+
 const markers = L.markerClusterGroup().addTo(map);
 const iconPaths = {
   violence: "./images/pnglegendes/violence.png",
@@ -553,6 +557,11 @@ function fetchDataForDepartement(departementName) {
 
 // Display data on the map
 function displayMap(response, map, markers) {
+  let latItem1 = response.crimes[0].latitude;
+  let longItem1 = response.crimes[0].longitude;
+  map.setView([latItem1, longItem1], 11);
+
+
   markers.clearLayers();
   response.crimes.forEach((point) => {
     let popupContent = "";
@@ -745,7 +754,7 @@ const createRecapOnLeaflet = (crimes) => {
     );
 
     div.innerHTML = `
-        Nombre total de crimes : ${totalCrimes}<br>
+        Nombre total de crimes : ${totalCrimes} <i> (Des types de crimes peuvent avoir plusieurs réitérations) </i><br>
         Crime le plus perpétré : ${mostFrequentCrime} (${maxCrime} cas)
       `;
     return div;
@@ -753,6 +762,34 @@ const createRecapOnLeaflet = (crimes) => {
 
   customDiv.addTo(map);
 };
+
+
+
+const addCenteredTitleToLeaflet = (map, title) => {
+  // Vérifier si un titre existe déjà et le supprimer
+  let existingTitleControl = map._controlCorners["topleft"]?.querySelector(
+    ".leaflet-centered-title"
+  );
+  if (existingTitleControl) {
+    existingTitleControl.remove();
+  }
+
+  // Créer un contrôle Leaflet personnalisé pour le titre
+  let titleControl = L.control({ position: "topleft" }); // Utiliser "topleft"
+
+  titleControl.onAdd = function () {
+    let container = L.DomUtil.create("div", "leaflet-centered-title");
+    container.innerHTML = title;
+    return container;
+  };
+
+  titleControl.addTo(map);
+};
+
+// Exemple d'utilisation :
+addCenteredTitleToLeaflet(map, "Les crimes en France");
+
+
 
 const createDashboardsComparaisonVille = (
   tauxPourMilles,
@@ -891,10 +928,10 @@ const fetchGeoJSON = async (url) => {
 // Fonction pour styliser les polygones
 const getPolygonStyle = () => {
   return {
-    color: "#3388ff", // Couleur des contours
+    color: "#dd1818", // Couleur des contours
     weight: 2, // Poids des contours
-    fillColor: "#6baed6",
-    fillOpacity: 0.6,
+    fillColor: "#fc0101",
+    fillOpacity: 0,
   };
 };
 
@@ -904,9 +941,7 @@ const onEachFeatureReg = (feature, layer) => {
     mouseover: (e) => {
       const target = e.target;
       target.setStyle({
-        weight: 5,
-        color: "#ff7800",
-        fillOpacity: 0.7,
+        fillOpacity: 0.15,
       });
       target.bringToFront();
     },
@@ -915,6 +950,25 @@ const onEachFeatureReg = (feature, layer) => {
     },
     click: () => {
       const regionCode = feature.properties.code;
+      
+
+    if (regionCode !== "") {
+      
+      let villeReg = data.codeCommunes.find((row) => row.code_region === regionCode);
+      console.log(villeReg);
+
+      let lat = villeReg.latitude;
+      let long = villeReg.longitude;
+
+      map.setView([lat, long], 8);
+    }
+
+      
+      
+
+      
+
+
 
       // Supprimer les couches existantes
       if (departementsLayer) {
@@ -946,9 +1000,7 @@ const onEachFeatureDep = (feature, layer) => {
     mouseover: (e) => {
       const target = e.target;
       target.setStyle({
-        weight: 5, // Augmente le poids au survol
-        color: "#ff7800", // Change la couleur des contours
-        fillOpacity: 0.7,
+        fillOpacity: 0.15,
       });
       target.bringToFront(); // Amène l'élément en avant
     },
@@ -959,7 +1011,18 @@ const onEachFeatureDep = (feature, layer) => {
       let departmentCode = feature.properties.code;
       if (departmentCode.slice(0, 1) === "0") {
         departmentCode = departmentCode.slice(1);
-      }
+      }   
+      
+      let villeDep = data.codeCommunes.find((row) => row.code_departement === departmentCode);
+      console.log(villeDep);
+
+      let lat = villeDep.latitude;
+      let long = villeDep.longitude;
+
+      map.setView([lat, long], 10);
+    
+
+
       console.log("Département sélectionné:", departmentCode);
 
       const departementSelect = document.getElementById("departement");
@@ -988,6 +1051,34 @@ fetchGeoJSON("regions.geojson").then((geojsonData) => {
     }).addTo(map); // Ajouter la couche des régions à la carte
   }
 });
+
+function createRain() {
+  const rainContainer = document.querySelector('.rain-container');
+
+  setInterval(() => {
+      const raindrop = document.createElement('div');
+      raindrop.classList.add('raindrop');
+
+      // Position horizontale aléatoire
+      raindrop.style.left = Math.random() * 100 + 'vw';
+
+      // Vitesse de chute aléatoire
+      const fallDuration = Math.random() * 2 + 2; // Entre 2 et 4 secondes
+      raindrop.style.animationDuration = fallDuration + 's';
+
+      // Ajouter la goutte à l'écran
+      rainContainer.appendChild(raindrop);
+
+      // Supprimer la goutte une fois qu'elle est tombée
+      setTimeout(() => {
+          raindrop.remove();
+      }, fallDuration * 1000);
+  }, 100); // Nouvelle goutte toutes les 100ms
+}
+
+// Lancer la pluie dès que la page est chargée
+document.addEventListener('DOMContentLoaded', createRain);
+
 
 // main
 initializeWebSite();

@@ -1,9 +1,12 @@
 :root {
     --white: white;
-    --pink: #A8385C;
+    --pink: #c01b1b;
     --lightGrey: #ccc;
     --grey: grey;
-    --bg: #080B2B;
+    --bg: #8e9eab;
+    --accent : #314453;
+    --black: #161616;
+    --title: #b31616;
 }
 
 body {
@@ -11,25 +14,21 @@ body {
     padding: 0;
     box-sizing: border-box;
     min-height: 100vh;
-    background: linear-gradient(135deg, #060818, #13173C, #090D33);
+    background: #f1f1f1;
     display: grid;
     grid-template-columns: 300px 1fr;
     grid-template-rows: 120px 1fr;
     grid-template-areas:
-        "leftbar title"
+        "leftbar main"
         "leftbar main";
     font-family: sans-serif;
+    position: relative;
 }
 
-header {
-    grid-area: title;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
 
 main {
     grid-area: main;
+    padding-top: 70px;
     padding-left: 30px;
     padding-right: 30px;
     padding-bottom: 30px;
@@ -37,23 +36,25 @@ main {
 }
 
 h2 {
-    color: var(--bg);
-    font-size: 22px;
+    color: var(--pink);
+    font-size: 26px;
     display: flex;
     justify-content: center;
-    background-color: var(--white) ;
     padding-bottom: 6px;
     padding-top: 6px;
     padding-right: 5px;
     padding-left: 5px;
-    border-radius: 4px;
+    font-weight: bold;
 }
 
 .leftbar {
     grid-area: leftbar;
     position: relative;
     padding: 40px;
+
 }
+
+
 
 .leftbar::before {
     content: "";
@@ -67,7 +68,7 @@ h2 {
 }
 
 label {
-    color: var(--white);
+    color: var(--black);
     font-weight: bold;
     font-size: 16px;
 }
@@ -85,32 +86,30 @@ label {
 }
 
 select {
-    background: var(--bg);
-    color: var(--grey);
+    background: var(--white);
+    color: var(--black);
     padding: 4px 30px 4px 10px;
     border-radius: 4px;
     margin-top: 2px;
     appearance: none;
     width: 100%;
-    border: 1px solid var(--lightGrey);
+    border: 1px solid var(--pink);
     font-size: 16px;
     transition: ease-in-out 0.3s;
 }
-
+#communes{
+    color: var(--black);
+}
 input {
     padding: 5px 30px 5px 10px;
     border-radius: 4px;
-    background-color: #080B2B;
+    background-color: var(--white);
     margin-top: 2px;
     width: 80%;
     appearance: none;
-    border: 1px solid var(--lightGrey);
+    border: 1px solid var(--pink);
     transition: ease-in-out 0.3s;
-    color: var(--white);
-}
-
-.ipville{
-    
+    color: var(--black);
 }
 
 #ville-options {
@@ -119,7 +118,7 @@ input {
 }
 
 select.touched {
-    color: var(--white);
+    color: var(--black);
 }
 
 option {
@@ -139,7 +138,7 @@ option {
 .inputs {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 }
 
 .cercle {
@@ -222,7 +221,7 @@ option {
 }
 
 .textLegend {
-    color: var(--white);
+    color: var(--black);
     font-weight: bold;
     font-size: 14px;
 }
@@ -254,32 +253,12 @@ option {
 
 
 .comparaisonZone{
-    margin-top: 30px;
+    margin-top: 16px;
 }
 .comparaisonInput {
     margin-top: 14px;
 }
 
-.barreChoix {
-    margin-top: 2px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-.barreC {
-    padding: 10px;
-    background-color: var(--grey);
-    cursor: pointer;
-    transition: ease-in-out 0.2s;
-}
-
-.phantomChoix {
-    background-color: var(--pink);
-    color: var(--white);
-}
 
 
 
@@ -301,6 +280,7 @@ h1 {
 
 .buttonsubmit {
     background-color: var(--pink);
+    border: 1px solid var(--white);
     color: var(--white);
     padding: 0.5em 0;
     width: 100%;
@@ -346,9 +326,9 @@ h1 {
 }
 
 .divRecapHautDroiteLeaflet {
-    background-color: var(--bg);
+    background-color: var(--white);
     border: 3px solid var(--pink);
-    color: var(--white);
+    color: var(--black);
     padding: 10px;
     border-radius: 5px;
     font-size: 16px;
@@ -371,6 +351,23 @@ h1 {
     left: 0px;
     z-index: 999;
 
+}
+
+
+.leaflet-centered-title {
+    position: absolute;
+    background-color: var(--grey);
+    color: var(--white);
+    top: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 4px;
+    padding: 5px 10px; /* Ajoutez un peu de padding pour rendre le titre plus lisible */
+    font-size: 24px;
+    font-weight: bold; /* Vous pouvez ajuster la taille du texte */
+    border: 1px solid var(--black);
 }
 
 
@@ -420,4 +417,35 @@ h1 {
 
 .leaflet-control {
     z-index: 401!important;
+}
+
+.rain-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Empêche les interactions avec les gouttes */
+    overflow: hidden;
+    z-index: 1;
+}
+
+.raindrop {
+    position: absolute;
+    width: 5px;
+    height: 15px;
+    background-color: rgba(223, 28, 45, 0.7); /* Rouge translucide */
+    border-radius: 50%;
+    animation: fall linear infinite;
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(-100px);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(100vh);
+        opacity: 0;
+    }
 }

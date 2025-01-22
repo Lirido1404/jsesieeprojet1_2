@@ -603,97 +603,85 @@ async function initializeWebSite() {
   }
 }
 
-//Partie Maxime Dashboards
-
-let nomCommune = "";
-const communesInput = document.getElementById("communes");
-communesInput.addEventListener("input", (e) => {
-  nomCommune = e.target.value;
-});
-
+// Dashboard
 let validationComparaisonCommunesDashboard = document.getElementById(
   "validationComparaisonCommunesDashboard"
 );
 let tabCommunes = [];
 
-function handleClick() {
-  console.log("TabCommunes avant ajout:", tabCommunes);
+function handleSubmitCompare() {
+  const villeList = document.getElementById("villeList");
+  const inputCommune = document.getElementById("communes"); // L'élément input
+  const nomCommune = inputCommune.value.trim(); // Récupérer la valeur de l'input
 
-  if (nomCommune && !tabCommunes.includes(nomCommune)) {
-    if (tabCommunes.length < 4) {
-      tabCommunes.push(nomCommune);
-    } else {
-      console.log("Nombre maximum de communes atteint.");
-      return;
-    }
+  // Vérifier si la commune existe
+  const communeExists = data.codeCommunes.some(
+    (row) => row.nom_commune.toLowerCase() === nomCommune.toLowerCase()
+  );
+  console.log("Commune saisie:", nomCommune);
+  console.log("Commune existe:", communeExists);
+
+  if (!communeExists) {
+    alert(
+      "La commune que vous avez saisie n'existe pas. Veuillez vérifier l'orthographe."
+    );
+    inputCommune.value = ""; // Réinitialiser l'input
+    return; // Ne pas ajouter la commune
   }
 
-  nomCommune = "";
-  communesInput.value = "";
+  if (tabCommunes.length < 4) {
+    if (!tabCommunes.includes(nomCommune) && nomCommune !== "") {
+      tabCommunes.push(nomCommune);
 
-  let maxAnneeParVille = [];
-  let tauxPourMilles = [];
+      // Créer un élément de liste pour la ville
+      const listItem = document.createElement("li");
+      listItem.className = "villeListItem";
+      listItem.textContent = nomCommune;
 
-  tabCommunes.forEach((commune) => {
-    let villeData = data.codeCommunes.find(
-      (row) => row.nom_commune === commune
-    );
-    let codeRegion = villeData.code_region;
-    let codeDepartement = villeData.code_departement;
-    let codeCommune = villeData.code_commune_INSEE;
-    let dataCrimesVille =
-      data.hierarchy[codeRegion][codeDepartement][codeCommune];
-    let annees = listeAnneeCrimes(dataCrimesVille);
+      // Ajouter une icône poubelle pour supprimer la ville
+      const deleteIcon = document.createElement("span");
+      deleteIcon.className = "deleteIcon";
+      deleteIcon.innerHTML = "🗑️";
+      deleteIcon.addEventListener("click", () => {
+        // Supprimer cette ville spécifique du tableau et de la liste
+        tabCommunes = tabCommunes.filter((commune) => commune !== nomCommune);
+        villeList.removeChild(listItem);
 
-    maxAnneeParVille.push(annees.length);
-    let tauxVille = {
-      commune: commune,
-      taux: [],
-    };
+        // Cas 1 : Plus de villes dans le comparateur
+        if (tabCommunes.length === 0) {
+          const redSquare = document.getElementById("redSquare");
+          const divContainer = redSquare
+            ? redSquare.closest(".dashboardBasGaucheLeaflet")
+            : null;
 
-    annees.forEach((anneee) => {
-      let filteredByYear = dataCrimesVille.filter(
-        (crime) => crime.annee == anneee
-      );
-      let nombrePopVille = parseInt(filteredByYear[0].POP);
-
-      let nombreCrimes = 0;
-      filteredByYear.forEach((typeCrime) => {
-        nombreCrimes += parseInt(typeCrime.faits);
+          // Simule un clic sur la croix rouge
+          if (divContainer) {
+            divContainer.remove(); // Supprime le dashboard
+          }
+        } else {
+          // Cas 2 : Mettre à jour le graphique avec les villes restantes
+          updateDashboardGraph();
+        }
       });
 
-      let tauxPourMille =
-        nombreCrimes === 0 ? 0 : (nombrePopVille / nombreCrimes) * 1000;
-
-      if (tauxPourMille > 0) {
-        tauxVille.taux.push(tauxPourMille);
-      }
-    });
-
-    tauxPourMilles.push(tauxVille);
-  });
-
-  console.log(tauxPourMilles);
-
-  let max = 0;
-  for (let y = 0; y < maxAnneeParVille.length; y++) {
-    if (maxAnneeParVille[y] > max) {
-      max = maxAnneeParVille[y];
+      listItem.appendChild(deleteIcon);
+      villeList.appendChild(listItem);
     }
+  } else {
+    alert("Vous pouvez sélectionner au maximum 4 communes");
   }
 
-  let prepArrAnneeDashboard = [];
-  for (let cpt = 0; cpt < max; cpt++) {
-    prepArrAnneeDashboard.push(2016 + cpt);
-  }
+  // Réinitialiser l'input
+  inputCommune.value = "";
 
-  console.log(prepArrAnneeDashboard);
-
-  createDashboardsComparaisonVille(tauxPourMilles, prepArrAnneeDashboard);
-  createListCommunesCRUD(tauxPourMilles, prepArrAnneeDashboard);
+  // Initialisation ou mise à jour du dashboard
+  updateDashboardGraph();
 }
 
-validationComparaisonCommunesDashboard.addEventListener("click", handleClick);
+validationComparaisonCommunesDashboard.addEventListener(
+  "click",
+  handleSubmitCompare
+);
 
 const createRecapOnLeaflet = (crimes) => {
   console.log(crimes);
@@ -826,16 +814,26 @@ const createDashboardsComparaisonVille = (
 
   // Ajouter un écouteur d'événement sur le carré rouge
   const redSquare = document.getElementById("redSquare");
-  const divContainer = redSquare ? redSquare.closest("div") : null; // Récupère le parent du carré rouge
+  const divContainer = redSquare
+    ? redSquare.closest(".dashboardBasGaucheLeaflet")
+    : null;
+  const villeList = document.getElementById("villeList"); // Liste des villes
 
   if (redSquare && divContainer) {
     redSquare.addEventListener("click", () => {
-      tabCommunes = [];
-      const canvasExistant = document.getElementById("dashboardCanvas");
-      if (canvasExistant) {
-        canvasExistant.parentElement.remove(); // Supprime le canvas et son parent
+      tabCommunes = []; // Réinitialise la liste des communes
+
+      // Supprime l'élément contenant le dashboard
+      if (divContainer) {
+        divContainer.remove(); // Supprime complètement le conteneur du DOM
       }
-      divContainer.remove(); // Supprime l'élément div contenant le carré rouge et le canvas
+
+      // Réinitialise l'affichage de la liste des villes
+      if (villeList) {
+        villeList.innerHTML = ""; // Vide la liste des villes
+      }
+
+      console.log("Dashboard fermé, liste des villes réinitialisée.");
     });
   }
 
@@ -888,6 +886,60 @@ const createDashboardsComparaisonVille = (
     });
   }, 100);
 };
+
+function updateDashboardGraph() {
+  if (tabCommunes.length === 0) return;
+
+  let maxAnneeParVille = [];
+  let tauxPourMilles = [];
+
+  tabCommunes.forEach((commune) => {
+    let villeData = data.codeCommunes.find(
+      (row) => row.nom_commune === commune
+    );
+    let codeRegion = villeData.code_region;
+    let codeDepartement = villeData.code_departement;
+    let codeCommune = villeData.code_commune_INSEE;
+    let dataCrimesVille =
+      data.hierarchy[codeRegion][codeDepartement][codeCommune];
+    let annees = listeAnneeCrimes(dataCrimesVille);
+
+    maxAnneeParVille.push(annees.length);
+
+    let tauxVille = {
+      commune: commune,
+      taux: [],
+    };
+
+    annees.forEach((annee) => {
+      let filteredByYear = dataCrimesVille.filter(
+        (crime) => crime.annee == annee
+      );
+      let nombrePopVille = parseInt(filteredByYear[0].POP);
+
+      let nombreCrimes = 0;
+      filteredByYear.forEach((typeCrime) => {
+        nombreCrimes += parseInt(typeCrime.faits);
+      });
+
+      let tauxPourMille =
+        nombreCrimes === 0 ? 0 : (nombrePopVille / nombreCrimes) * 1000;
+
+      tauxVille.taux.push(tauxPourMille);
+    });
+
+    tauxPourMilles.push(tauxVille);
+  });
+
+  let max = Math.max(...maxAnneeParVille);
+
+  let prepArrAnneeDashboard = [];
+  for (let cpt = 0; cpt < max; cpt++) {
+    prepArrAnneeDashboard.push(2016 + cpt);
+  }
+
+  createDashboardsComparaisonVille(tauxPourMilles, prepArrAnneeDashboard);
+}
 
 const listeAnneeCrimes = (dataCrimesVille) => {
   let anneestab = [];

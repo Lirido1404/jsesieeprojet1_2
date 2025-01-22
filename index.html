@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projet Géomatique</title>
+    <title>Datavisualition crimes en France</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.Default.css" />
+    <link rel="icon" type="image/x-icon" href="./images/logocrimes-removebg-preview.png">
 
     <script src="https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster.js"></script>
 </head>
@@ -56,7 +57,7 @@
             <div class="villeInput" id="villeInput">
                 <label for="ville">Par ville :</label>
                 <div class="select-container">
-                    <input type="text" name="ville" id="ville" list="ville-options" placeholder="Choisissez une ville">
+                    <input type="text" name="ville" class="ipville" id="ville" list="ville-options" placeholder="Choisissez une ville">
                     <datalist id="ville-options"></datalist>
                 </div>
             </div>
@@ -129,10 +130,10 @@
 
         <div class="separator"></div>
 
-        <h2>Comparer des villes</h2>
+        <h2 class="comparaisonZone">Comparer</h2>
             <div class="comparaisonInput">
                 <div class="inputComm" id="inputComm">
-                    <label for="">Communes</label>
+                    <label for="">Par communes : </label>
                     <input type="text" id="communes">
                 </div>
 

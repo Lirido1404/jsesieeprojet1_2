@@ -14,7 +14,7 @@ body {
     background: linear-gradient(135deg, #060818, #13173C, #090D33);
     display: grid;
     grid-template-columns: 300px 1fr;
-    grid-template-rows: 80px 1fr;
+    grid-template-rows: 120px 1fr;
     grid-template-areas:
         "leftbar title"
         "leftbar main";
@@ -30,13 +30,23 @@ header {
 
 main {
     grid-area: main;
-    padding: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-bottom: 30px;
     position: relative;
 }
 
 h2 {
-    color: var(--white);
-    font-size: 16px;
+    color: var(--bg);
+    font-size: 22px;
+    display: flex;
+    justify-content: center;
+    background-color: var(--white) ;
+    padding-bottom: 6px;
+    padding-top: 6px;
+    padding-right: 5px;
+    padding-left: 5px;
+    border-radius: 4px;
 }
 
 .leftbar {
@@ -65,7 +75,6 @@ label {
 .yearInput {
     display: flex;
     flex-direction: column;
-    margin-top: 20px;
 }
 
 /* Conteneur pour le select et le chevron */
@@ -89,14 +98,19 @@ select {
 }
 
 input {
-    padding: 4px 30px 4px 10px;
+    padding: 5px 30px 5px 10px;
     border-radius: 4px;
     background-color: #080B2B;
     margin-top: 2px;
+    width: 80%;
     appearance: none;
     border: 1px solid var(--lightGrey);
     transition: ease-in-out 0.3s;
     color: var(--white);
+}
+
+.ipville{
+    
 }
 
 #ville-options {
@@ -114,7 +128,7 @@ option {
 
 .chevron {
     position: absolute;
-    top: 50%;
+    top: 55%;
     right: 10px;
     transform: translateY(-50%);
     pointer-events: none;
@@ -204,7 +218,7 @@ option {
 }
 
 .buttonsubmit2 {
-    margin-top: 4px;
+    margin-top: 6px;
 }
 
 .textLegend {
@@ -229,7 +243,7 @@ option {
 }
 
 .separator {
-    margin-top: 16px;
+    margin-top: 30px;
     width: 80%;
     margin-left: auto;
     margin-right: auto;
@@ -238,8 +252,12 @@ option {
     display: block;
 }
 
+
+.comparaisonZone{
+    margin-top: 30px;
+}
 .comparaisonInput {
-    margin-top: 16px;
+    margin-top: 14px;
 }
 
 .barreChoix {
@@ -382,7 +400,7 @@ h1 {
 
 .progress-container {
     width: 80%;
-    background-color: #f3f3f3;
+    background-color: var(--white);
     border-radius: 10px;
     height: 30px;
     margin-bottom: 20px;
@@ -391,7 +409,7 @@ h1 {
 .progress-bar {
     height: 100%;
     width: 0%;
-    background-color: #A8385C;
+    background-color: var(--pink);
     border-radius: 10px;
     transition: width 0.5s ease-out;
 }

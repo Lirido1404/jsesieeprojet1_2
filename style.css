@@ -264,11 +264,16 @@ option {
     display: flex;
     gap: 7px;
     align-items: center;
+    transition: 0.3s ease-in-out;
 
   }
 
   .sous-element p{
     font-size: 12px;
+  }
+
+  .sous-element :hover{
+    transform: scale(1.1);
   }
 
   /* Styles pour l'état "clicked" des .sous-element */

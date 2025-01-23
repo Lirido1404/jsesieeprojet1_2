@@ -85,8 +85,8 @@ const iconPaths = {
   otherviolences: "./images/legendes2/otherinjury.png",
   sexualViolence: "./images/legendes2/sexualviolences2.png",
   steal: "./images/legendes2/steal2.png",
-  stealincar: "./images/legendes2/stealcar.png",
-  stealcar: "./images/legendes2/stealaccessories.png",
+  stealincar: "./images/legendes2/stealincar.png",
+  stealcaraccessories: "./images/legendes2/steelcaraccessories2.png",
   stealhouses: "./images/legendes2/stealhouse.png",
   stealgun: "./images/legendes2/gun2.png",
   stealwithoutgun: "./images/legendes2/stealwithoutgun.png",
@@ -102,7 +102,7 @@ const iconMapping = {
   "Violences sexuelles": "sexualViolence",
   "Vols de véhicules": "steal",
   "Vols dans les véhicules": "stealincar",
-  "Vols d'accessoires sur véhicules": "stealcar",
+  "Vols d'accessoires sur véhicules": "stealcaraccessories",
   "Cambriolages de logement": "stealhouses",
   "Vols avec armes": "stealgun",
   "Vols violents sans arme": "stealwithoutgun",
@@ -442,17 +442,35 @@ async function initDataOptionsInInputs() {
   });
 
   // checkboxes for crime types
-  document.querySelectorAll(".cercle-container").forEach((container) => {
-    container.addEventListener("click", () => {
-      const checkboxId = container.getAttribute("data-checkbox-id");
-      const checkbox = document.getElementById(checkboxId);
-      checkbox.checked = !checkbox.checked;
+// Gestion du clic sur les cerclerow
+document.querySelectorAll(".cerclerow").forEach((container) => {
+  container.addEventListener("click", () => {
+    const checkboxId = container.getAttribute("data-checkbox-id");
+    const checkbox = document.getElementById(checkboxId);
+    checkbox.checked = !checkbox.checked; // Inverse l'état de la checkbox
 
-      container.classList.toggle("selected");
+    container.classList.toggle("selected"); // Ajoute ou retire la classe "selected"
 
-      handleSubmit();
-    });
+    handleSubmit(); // Appelle la fonction handleSubmit (si nécessaire)
   });
+});
+
+// Gestion du clic sur les sous-elements
+document.querySelectorAll(".sous-element").forEach((subElement) => {
+  subElement.addEventListener("click", (event) => {
+    const checkboxId = subElement.getAttribute("data-checkbox-id");
+    const checkbox = document.getElementById(checkboxId);
+    checkbox.checked = !checkbox.checked; // Inverse l'état de la checkbox
+
+    subElement.classList.toggle("selected"); // Ajoute ou retire la classe "selected"
+
+    handleSubmit(); // Appelle la fonction handleSubmit (si nécessaire)
+
+    // Empêche la propagation du clic au parent
+    event.stopPropagation();
+  });
+});
+
 
   // onSubmit
   const submitButton = document.getElementById("buttonsubmit");
@@ -563,6 +581,8 @@ function displayMap(response, map, markers) {
   let latItem1 = response.crimes[0].latitude;
   let longItem1 = response.crimes[0].longitude;
   map.setView([latItem1, longItem1], 11);
+
+  console.log(response);
 
   markers.clearLayers();
   response.crimes.forEach((point) => {
@@ -692,10 +712,16 @@ validationComparaisonCommunesDashboard.addEventListener(
 );
 
 const createRecapOnLeaflet = (crimes) => {
+  const selectyears = document.getElementById("years");
+  const selectedYear = selectyears.value; // Récupérer l'année sélectionnée
+
   console.log(crimes);
 
   let annees = listeAnneeCrimes(crimes);
   console.log(annees);
+
+  // Si une année est sélectionnée, on filtre par cette année, sinon on garde toutes les années
+  let filteredCrimes = selectedYear ? crimes.filter(crime => crime.annee == selectedYear) : crimes;
 
   let crimeTotals = {
     "Coups et blessures volontaires": 0,
@@ -714,14 +740,11 @@ const createRecapOnLeaflet = (crimes) => {
     "Usage de stupéfiants": 0,
   };
 
-  annees.forEach((anneee) => {
-    let filteredByYear = crimes.filter((crime) => crime.annee == anneee);
-
-    filteredByYear.forEach((typecrime) => {
-      if (crimeTotals.hasOwnProperty(typecrime.classe)) {
-        crimeTotals[typecrime.classe] += parseInt(typecrime.faits);
-      }
-    });
+  // Filtrer les crimes par année et calculer les totaux par type de crime
+  filteredCrimes.forEach((typecrime) => {
+    if (crimeTotals.hasOwnProperty(typecrime.classe)) {
+      crimeTotals[typecrime.classe] += parseInt(typecrime.faits);
+    }
   });
 
   // Calcul du crime le plus fréquent (parmi les totaux)
@@ -749,8 +772,11 @@ const createRecapOnLeaflet = (crimes) => {
       0
     );
 
-    div.innerHTML = `
-        Nombre total de crimes : ${totalCrimes} <i> (Des types de crimes peuvent avoir plusieurs réitérations) </i><br>
+    let yearText = selectedYear ? `en ${selectedYear}` : ''; // Si une année est sélectionnée, on l'affiche
+
+
+    div.innerHTML = 
+        `Nombre total de crimes ${yearText} : ${totalCrimes} <i> (Des types de crimes peuvent avoir plusieurs réitérations) </i><br>
         Crime le plus perpétré : ${mostFrequentCrime} (${maxCrime} cas)
       `;
     return div;
@@ -758,6 +784,7 @@ const createRecapOnLeaflet = (crimes) => {
 
   customDiv.addTo(map);
 };
+
 
 const addCenteredTitleToLeaflet = (map, title) => {
   // Vérifier si un titre existe déjà et le supprimer

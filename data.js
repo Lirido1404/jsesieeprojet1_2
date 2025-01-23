@@ -441,35 +441,79 @@ async function initDataOptionsInInputs() {
     resetMapMarkers();
   });
 
-  // checkboxes for crime types
-// Gestion du clic sur les cerclerow
-document.querySelectorAll(".cerclerow").forEach((container) => {
-  container.addEventListener("click", () => {
-    const checkboxId = container.getAttribute("data-checkbox-id");
-    const checkbox = document.getElementById(checkboxId);
-    checkbox.checked = !checkbox.checked; // Inverse l'état de la checkbox
-
-    container.classList.toggle("selected"); // Ajoute ou retire la classe "selected"
-
-    handleSubmit(); // Appelle la fonction handleSubmit (si nécessaire)
+  document.querySelectorAll(".cerclerow").forEach((container) => {
+    container.addEventListener("click", () => {
+      const checkboxId = container.getAttribute("data-checkbox-id");
+      const checkbox = document.getElementById(checkboxId);
+  
+      // Vérifie que la checkbox du groupe principal existe
+      if (!checkbox) {
+        console.error(`Checkbox avec ID "${checkboxId}" introuvable.`);
+        return;
+      }
+  
+      // Basculer immédiatement l'état du groupe principal
+      const isChecked = !checkbox.checked;
+      checkbox.checked = isChecked;
+  
+      // Mettre à jour la classe "selected" pour le groupe principal
+      container.classList.toggle("selected", isChecked);
+  
+      // Trouver les sous-éléments associés
+      const infoplus = container.nextElementSibling; // Conteneur des sous-éléments
+      if (infoplus && infoplus.classList.contains("infoplus")) {
+        // Met à jour immédiatement l'état de tous les sous-éléments
+        infoplus.querySelectorAll(".sous-element").forEach((subElement) => {
+          const subCheckboxId = subElement.getAttribute("data-checkbox-id");
+          const subCheckbox = document.getElementById(subCheckboxId);
+  
+          if (!subCheckbox) {
+            console.error(
+              `Sous-checkbox avec ID "${subCheckboxId}" introuvable.`
+            );
+            return;
+          }
+  
+          // Synchronise l'état des sous-checkboxes avec celui du groupe principal
+          subCheckbox.checked = isChecked;
+  
+          // Mettre à jour immédiatement l'apparence visuelle des sous-éléments
+          subElement.classList.toggle("selected", isChecked);
+        });
+      }
+  
+      // Appeler handleSubmit si nécessaire
+      handleSubmit();
+    });
   });
-});
-
-// Gestion du clic sur les sous-elements
-document.querySelectorAll(".sous-element").forEach((subElement) => {
-  subElement.addEventListener("click", (event) => {
-    const checkboxId = subElement.getAttribute("data-checkbox-id");
-    const checkbox = document.getElementById(checkboxId);
-    checkbox.checked = !checkbox.checked; // Inverse l'état de la checkbox
-
-    subElement.classList.toggle("selected"); // Ajoute ou retire la classe "selected"
-
-    handleSubmit(); // Appelle la fonction handleSubmit (si nécessaire)
-
-    // Empêche la propagation du clic au parent
-    event.stopPropagation();
+  
+  // Gestion indépendante des sous-éléments
+  document.querySelectorAll(".sous-element").forEach((subElement) => {
+    subElement.addEventListener("click", (event) => {
+      const checkboxId = subElement.getAttribute("data-checkbox-id");
+      const checkbox = document.getElementById(checkboxId);
+  
+      // Vérifie que la sous-checkbox existe
+      if (!checkbox) {
+        console.error(`Checkbox avec ID "${checkboxId}" introuvable.`);
+        return;
+      }
+  
+      // Basculer immédiatement l'état de la sous-checkbox
+      checkbox.checked = !checkbox.checked;
+  
+      // Mettre à jour immédiatement l'apparence visuelle du sous-élément
+      subElement.classList.toggle("selected", checkbox.checked);
+  
+      // Empêcher la propagation pour éviter d'activer le groupe parent
+      event.stopPropagation();
+  
+      // Appeler handleSubmit si nécessaire
+      handleSubmit();
+    });
   });
-});
+  
+  
 
 
   // onSubmit
@@ -711,16 +755,35 @@ validationComparaisonCommunesDashboard.addEventListener(
   handleSubmitCompare
 );
 
+
+const getSelectedCrimeTypes = () => {
+  const checkboxes = document.querySelectorAll('.crimeTypeCheckbox:checked');
+  return Array.from(checkboxes).map(checkbox => checkbox.value);
+};
+
+
 const createRecapOnLeaflet = (crimes) => {
   const selectyears = document.getElementById("years");
-  const selectedYear = selectyears.value; // Récupérer l'année sélectionnée
+  const selectedYear = selectyears.value;
+  
+  let checkboxeschecked = getSelectedCrimeTypes();
+
+  let filteredCrimesbis = crimes.filter(crime => {
+    return (
+      (checkboxeschecked.length > 0 ? checkboxeschecked.includes(crime.classe) : true)
+    );
+  });
+
+  console.log(filteredCrimesbis);
+
+
+
 
   console.log(crimes);
 
   let annees = listeAnneeCrimes(crimes);
   console.log(annees);
 
-  // Si une année est sélectionnée, on filtre par cette année, sinon on garde toutes les années
   let filteredCrimes = selectedYear ? crimes.filter(crime => crime.annee == selectedYear) : crimes;
 
   let crimeTotals = {

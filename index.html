@@ -101,28 +101,43 @@
       <div class="typesCrimesInput">
         <label>Types de crimes :</label>
         <div class="typesCrimesInput2">
-          <div class="cercle-container" >
-            <div class="cerclerow" data-checkbox-id="drugs">
+          <div class="cercle-container">
+            <div class="cerclerow" data-checkbox-id="groupeDrugs">
               <div class="cercle">
                 <img
                   src="./images/legendes/drugs-drug-svgrepo-com.svg"
                   alt="Icone drogues"
                 />
               </div>
-              <label class="textLegend" for="drugs">Trafic de drogues</label>
+              <label class="textLegend" for="drugs">Drogues</label>
               <input
                 type="checkbox"
-                id="drugs"
+                id="groupeDrugs"
                 class="crimeTypeCheckbox"
-                value="drugs"
-                checked
+                value="groupeDrugs"
               />
               <div class="plus plus1">
                 <img src="./images/info-circle-svgrepo-com.svg" alt="info" />
               </div>
             </div>
             <div class="infoplus infoplus1">
-              <div class="sous-element" data-checkbox-id="drugsusages">
+              <div class="sous-element" id="sousel1" data-checkbox-id="drugs">
+                <img src="./images/legendes2/drugs2.png" alt="Icone drogues" />
+                <p>Trafic de drogues</p>
+                <input
+                  type="checkbox"
+                  id="drugs"
+                  class="crimeTypeCheckbox"
+                  value="drugs"
+                  checked
+                />
+              </div>
+
+              <div
+                class="sous-element"
+                id="sousel2"
+                data-checkbox-id="drugsusages"
+              >
                 <img
                   src="./images/legendes2/drugsusages.png"
                   alt="Icone drogues"
@@ -139,29 +154,36 @@
             </div>
           </div>
 
-          <div class="cercle-container" >
-            <div class="cerclerow" data-checkbox-id="sexualViolence">
+          <div class="cercle-container">
+            <div class="cerclerow" data-checkbox-id="groupeViolences">
               <div class="cercle">
                 <img
                   src="./images/legendes/sexual-harassment-teacher-svgrepo-com.svg"
                   alt="Icone violences sexuelles"
                 />
               </div>
-              <label class="textLegend" for="sexualViolence"
-                >Violences sexuelles</label
-              >
-              <input
-                type="checkbox"
-                id="sexualViolence"
-                class="crimeTypeCheckbox"
-                value="sexualViolence"
-                checked
-              />
+              <label class="textLegend" for="sexualViolence">Violences</label>
+
               <div class="plus plus2">
                 <img src="./images/info-circle-svgrepo-com.svg" alt="info" />
               </div>
             </div>
             <div class="infoplus infoplus2">
+              <div class="sous-element" data-checkbox-id="sexualViolence">
+                <img
+                  src="./images/legendes2/sexualviolences2.png"
+                  alt="Icone coups"
+                />
+                <p>Violences sexuelles</p>
+                <input
+                  type="checkbox"
+                  id="sexualViolence"
+                  class="crimeTypeCheckbox"
+                  value="sexualViolence"
+                  checked
+                />
+              </div>
+
               <div class="sous-element" data-checkbox-id="violence">
                 <img
                   src="./images/legendes2/harassment2.png"
@@ -209,7 +231,7 @@
             </div>
           </div>
 
-          <div class="cercle-container" >
+          <div class="cercle-container">
             <div class="cerclerow" data-checkbox-id="destruction">
               <div class="cercle">
                 <img
@@ -228,27 +250,36 @@
             </div>
           </div>
 
-          <div class="cercle-container" >
-            <div class="cerclerow" data-checkbox-id="steal">
+          <div class="cercle-container">
+            <div class="cerclerow" data-checkbox-id="groupeSteal">
               <div class="cercle">
                 <img
                   src="./images/legendes/theft-crime-steal-thief-svgrepo-com.svg"
                   alt="Icone vols"
                 />
               </div>
-              <label class="textLegend" for="steal">Vols de véhicules</label>
-              <input
-                type="checkbox"
-                id="steal"
-                class="crimeTypeCheckbox"
-                value="steal"
-                checked
-              />
+              <label class="textLegend" for="steal">Vols</label>
+
               <div class="plus plus4">
                 <img src="./images/info-circle-svgrepo-com.svg" alt="info" />
               </div>
             </div>
             <div class="infoplus infoplus4">
+              <div class="sous-element" data-checkbox-id="steal">
+                <img
+                  src="./images/legendes2/steal2.png"
+                  alt="Icone vols dans voitures"
+                />
+                <p>Vols de véhicules</p>
+                <input
+                  type="checkbox"
+                  id="steal"
+                  class="crimeTypeCheckbox"
+                  value="steal"
+                  checked
+                />
+              </div>
+
               <div class="sous-element" data-checkbox-id="stealincar">
                 <img
                   src="./images/legendes2/stealincar.png"
@@ -337,10 +368,6 @@
               </div>
             </div>
           </div>
-
-          
-
-          
         </div>
       </div>
 

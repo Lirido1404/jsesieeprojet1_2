@@ -1,3 +1,122 @@
+const selectYears = document.getElementById("years");
+const selectDepartement = document.getElementById("departement");
+const selectVille = document.getElementById("ville");
+const selectRegions = document.getElementById("region");
+const divDepartementInput = document.getElementById("departementInput");
+const divVilleInput = document.getElementById("villeInput");
+
+selectRegions.addEventListener("change", (e) => {
+  if (e.target.value !== "") {
+    divDepartementInput.classList.add("active");
+    divDepartementInput.style.height = divDepartementInput.scrollHeight + "px";
+  } else {
+    divDepartementInput.style.height = "0";
+    divDepartementInput.classList.remove("active");
+  }
+  divVilleInput.classList.remove("active");
+  divVilleInput.style.height = "0";
+});
+
+selectDepartement.addEventListener("change", (e) => {
+  if (e.target.value !== "") {
+    divVilleInput.classList.add("active");
+    divVilleInput.style.height = divDepartementInput.scrollHeight + "px";
+  } else {
+    divVilleInput.style.height = "0";
+    divVilleInput.classList.remove("active");
+  }
+});
+
+selectYears.addEventListener("focus", () => {
+  selectYears.classList.add("touched");
+});
+
+selectDepartement.addEventListener("focus", () => {
+  selectDepartement.classList.add("touched");
+});
+
+selectVille.addEventListener("focus", () => {
+  selectVille.classList.add("touched");
+});
+
+let select = document.getElementById("departement");
+
+for (let i = 1; i <= 96; i++) {
+  let option = document.createElement("option");
+  option.value = i;
+  option.text = i;
+  select.appendChild(option);
+}
+
+// Sélectionner tous les conteneurs de cercles
+
+document.querySelectorAll(".plus1").forEach((plusElement) => {
+  plusElement.addEventListener("click", function (event) {
+    event.stopPropagation();
+
+    const infoplus =
+      this.closest(".cercle-container").querySelector(".infoplus1");
+    if (infoplus.style.height === "0px" || !infoplus.style.height) {
+      infoplus.style.height = infoplus.scrollHeight + "px"; // Définir la hauteur actuelle
+    } else {
+      infoplus.style.height = "0px"; // Réduire à zéro
+    }
+  });
+});
+
+document.querySelectorAll(".plus2").forEach((plusElement) => {
+  plusElement.addEventListener("click", function (event) {
+    event.stopPropagation();
+
+    const infoplus =
+      this.closest(".cercle-container").querySelector(".infoplus2");
+    if (infoplus.style.height === "0px" || !infoplus.style.height) {
+      infoplus.style.height = infoplus.scrollHeight + "px"; // Définir la hauteur actuelle
+    } else {
+      infoplus.style.height = "0px"; // Réduire à zéro
+    }
+  });
+});
+
+document.querySelectorAll(".plus4").forEach((plusElement) => {
+  plusElement.addEventListener("click", function (event) {
+    event.stopPropagation();
+
+    const infoplus =
+      this.closest(".cercle-container").querySelector(".infoplus4");
+    if (infoplus.style.height === "0px" || !infoplus.style.height) {
+      infoplus.style.height = infoplus.scrollHeight + "px"; // Définir la hauteur actuelle
+    } else {
+      infoplus.style.height = "0px"; // Réduire à zéro
+    }
+  });
+});
+
+const cercleContainers = document.querySelectorAll(".cercle-container");
+
+// Appliquer un effet de gris (grayscale) et un effet de mise à l'échelle (scale) sur les images quand le conteneur est cliqué
+cercleContainers.forEach((container) => {
+  const image = container.querySelector("img"); // Sélectionner l'image à l'intérieur du conteneur
+
+  // Quand le conteneur est cliqué
+  container.addEventListener("click", () => {
+    // Alterner la classe "clicked" pour appliquer ou retirer les effets
+    container.classList.toggle("clicked");
+  });
+});
+
+document.querySelectorAll('.cerclerow').forEach(cerclerow => {
+  cerclerow.addEventListener('click', () => {
+    cerclerow.classList.toggle('clicked');
+  });
+});
+
+document.querySelectorAll('.sous-element').forEach(sousElement => {
+  sousElement.addEventListener('click', () => {
+    sousElement.classList.toggle('clicked');
+  });
+});
+
 // Function to load and parse a CSV
 async function loadCSV(filePath) {
   const response = await fetch(filePath);
@@ -316,7 +435,7 @@ async function initDataOptionsInInputs() {
 
     if (selectedRegionCode === "") {
       // Si "Choisissez une région" est sélectionné, afficher toutes les régions
-      fetchGeoJSON("regions.geojson").then((geojsonData) => {
+      fetchGeoJSON("./data/regions.geojson").then((geojsonData) => {
         if (geojsonData) {
           regionsLayer = L.geoJSON(geojsonData, {
             style: getPolygonStyle,
@@ -326,7 +445,7 @@ async function initDataOptionsInInputs() {
       });
     } else {
       // Charger et afficher les départements de la région sélectionnée
-      fetchGeoJSON("dep.geojson").then((geojsonData) => {
+      fetchGeoJSON("./data/dep.geojson").then((geojsonData) => {
         if (geojsonData) {
           const filteredFeatures = geojsonData.features.filter(
             (departmentFeature) => {
@@ -391,7 +510,7 @@ async function initDataOptionsInInputs() {
 
     if (selectedDepartmentCode === "") {
       // Si "Choisissez un département" est sélectionné, afficher tous les départements de la région sélectionnée
-      fetchGeoJSON("dep.geojson").then((geojsonData) => {
+      fetchGeoJSON("./data/dep.geojson").then((geojsonData) => {
         if (geojsonData) {
           const filteredFeatures = geojsonData.features.filter(
             (departmentFeature) => {
@@ -445,20 +564,20 @@ async function initDataOptionsInInputs() {
     container.addEventListener("click", () => {
       const checkboxId = container.getAttribute("data-checkbox-id");
       const checkbox = document.getElementById(checkboxId);
-  
+
       // Vérifie que la checkbox du groupe principal existe
       if (!checkbox) {
         console.error(`Checkbox avec ID "${checkboxId}" introuvable.`);
         return;
       }
-  
+
       // Basculer immédiatement l'état du groupe principal
       const isChecked = !checkbox.checked;
       checkbox.checked = isChecked;
-  
+
       // Mettre à jour la classe "selected" pour le groupe principal
       container.classList.toggle("selected", isChecked);
-  
+
       // Trouver les sous-éléments associés
       const infoplus = container.nextElementSibling; // Conteneur des sous-éléments
       if (infoplus && infoplus.classList.contains("infoplus")) {
@@ -466,54 +585,54 @@ async function initDataOptionsInInputs() {
         infoplus.querySelectorAll(".sous-element").forEach((subElement) => {
           const subCheckboxId = subElement.getAttribute("data-checkbox-id");
           const subCheckbox = document.getElementById(subCheckboxId);
-  
+
           if (!subCheckbox) {
             console.error(
               `Sous-checkbox avec ID "${subCheckboxId}" introuvable.`
             );
             return;
           }
-  
+
           // Synchronise l'état des sous-checkboxes avec celui du groupe principal
           subCheckbox.checked = isChecked;
-  
+
           // Mettre à jour immédiatement l'apparence visuelle des sous-éléments
           subElement.classList.toggle("selected", isChecked);
         });
       }
-  
+
       // Appeler handleSubmit si nécessaire
       handleSubmit();
     });
   });
-  
+
   // Gestion indépendante des sous-éléments
   document.querySelectorAll(".sous-element").forEach((subElement) => {
     subElement.addEventListener("click", (event) => {
       const checkboxId = subElement.getAttribute("data-checkbox-id");
       const checkbox = document.getElementById(checkboxId);
-  
+
       // Vérifie que la sous-checkbox existe
       if (!checkbox) {
         console.error(`Checkbox avec ID "${checkboxId}" introuvable.`);
         return;
       }
-  
+
       // Basculer immédiatement l'état de la sous-checkbox
       checkbox.checked = !checkbox.checked;
-  
+
       // Mettre à jour immédiatement l'apparence visuelle du sous-élément
       subElement.classList.toggle("selected", checkbox.checked);
-  
+
       // Empêcher la propagation pour éviter d'activer le groupe parent
       event.stopPropagation();
-  
+
       // Appeler handleSubmit si nécessaire
       handleSubmit();
     });
   });
-  
-  
+
+
 
 
   // onSubmit
@@ -579,7 +698,7 @@ function fetchData(
     if (selectedCityCode) {
       crimes =
         data.hierarchy[selectedRegionCode][selectedDepartmentCode][
-          selectedCityCode
+        selectedCityCode
         ] || [];
       createRecapOnLeaflet(crimes);
     }
@@ -765,7 +884,7 @@ const getSelectedCrimeTypes = () => {
 const createRecapOnLeaflet = (crimes) => {
   const selectyears = document.getElementById("years");
   const selectedYear = selectyears.value;
-  
+
   let checkboxeschecked = getSelectedCrimeTypes();
 
   let filteredCrimesbis = crimes.filter(crime => {
@@ -838,8 +957,8 @@ const createRecapOnLeaflet = (crimes) => {
     let yearText = selectedYear ? `en ${selectedYear}` : ''; // Si une année est sélectionnée, on l'affiche
 
 
-    div.innerHTML = 
-        `Nombre total de crimes ${yearText} : ${totalCrimes} <i> (Des types de crimes peuvent avoir plusieurs réitérations) </i><br>
+    div.innerHTML =
+      `Nombre total de crimes ${yearText} : ${totalCrimes} <i> (Des types de crimes peuvent avoir plusieurs réitérations) </i><br>
         Crime le plus perpétré : ${mostFrequentCrime} (${maxCrime} cas)
       `;
     return div;
@@ -1196,7 +1315,7 @@ const onEachFeatureDep = (feature, layer) => {
 };
 
 // Charger les régions initialement
-fetchGeoJSON("regions.geojson").then((geojsonData) => {
+fetchGeoJSON("./data/regions.geojson").then((geojsonData) => {
   if (geojsonData) {
     regionsLayer = L.geoJSON(geojsonData, {
       style: getPolygonStyle, // Appliquer le style initial

@@ -94,9 +94,11 @@ select {
   font-size: 16px;
   transition: ease-in-out 0.3s;
 }
+
 #communes {
   color: var(--black);
 }
+
 input {
   padding: 5px 30px 5px 10px;
   border-radius: 4px;
@@ -149,19 +151,19 @@ option {
   border: 4px solid var(--grey);
 }
 
-.cercle :hover{
-    transform: scale(1.3);
+.cercle :hover {
+  transform: scale(1.3);
 }
 
-.cercle{
-    transition: 0.3s ease-in-out;
+.cercle {
+  transition: 0.3s ease-in-out;
 }
 
 
 
-.cercle2 img{
-    width: 20px;
-    height: 20px;
+.cercle2 img {
+  width: 20px;
+  height: 20px;
 }
 
 .departementInput {
@@ -199,106 +201,120 @@ option {
 
 /* Styles pour l'état "clicked" */
 .cerclerow.clicked img {
-    transform: scale(0.85); /* Réduire la taille de l'image */
-    filter: grayscale(100%); /* Appliquer un filtre en niveaux de gris */
-    transition: transform 0.3s ease, filter 0.3s ease; /* Ajoute une transition */
-  }
-  
-  /* Réduire l'opacité du texte associé */
-  .cerclerow.clicked .textLegend {
-    opacity: 0.2; /* Opacité à 20% */
-    transition: opacity 0.3s ease; /* Transition pour l'effet d'opacité */
-  }
-  
-  /* Transitions par défaut */
-  .cerclerow img,
-  .cerclerow .textLegend {
-    transition: all 0.3s ease;
-  }
-  
-  /* Styles normaux (facultatifs pour une base propre) */
-  .cerclerow {
-    cursor: pointer; /* Change le curseur pour montrer qu'il est cliquable */
-  }
-  
+  transform: scale(0.85);
+  /* Réduire la taille de l'image */
+  filter: grayscale(100%);
+  /* Appliquer un filtre en niveaux de gris */
+  transition: transform 0.3s ease, filter 0.3s ease;
+  /* Ajoute une transition */
+}
+
+/* Réduire l'opacité du texte associé */
+.cerclerow.clicked .textLegend {
+  opacity: 0.2;
+  /* Opacité à 20% */
+  transition: opacity 0.3s ease;
+  /* Transition pour l'effet d'opacité */
+}
+
+/* Transitions par défaut */
+.cerclerow img,
+.cerclerow .textLegend {
+  transition: all 0.3s ease;
+}
+
+/* Styles normaux (facultatifs pour une base propre) */
+.cerclerow {
+  cursor: pointer;
+  /* Change le curseur pour montrer qu'il est cliquable */
+}
+
 
 .cercle-container {
-    display: flex;
-    flex-direction: column; /* Aligne verticalement les éléments */
-    align-items: start;
-    gap: 3px; /* Espacement entre les éléments */
-    cursor: pointer;
-    position: relative;
-  }
-  
-  .cerclerow {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-  
-  .infoplus {
-    width: 100%;
-    height: 0px;
-    display: flex;
-    flex-direction: column;
-    align-items: end;
-    gap: 6px;
-    transition: 0.3s ease-in-out;
-    overflow: hidden;
-  }
-    
-  .plus{
-    position: absolute;
-    top: 0;
-    right: -20px;
-    transition: 0.3s ease-in-out;
-  }
+  display: flex;
+  flex-direction: column;
+  /* Aligne verticalement les éléments */
+  align-items: start;
+  gap: 3px;
+  /* Espacement entre les éléments */
+  cursor: pointer;
+  position: relative;
+}
 
-  .plus :hover{
-    transform: scale(1.2);
-  }
+.cerclerow {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
 
-  .sous-element{
-    display: flex;
-    gap: 7px;
-    align-items: center;
-    transition: 0.3s ease-in-out;
+.infoplus {
+  width: 100%;
+  height: 0px;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 6px;
+  transition: 0.3s ease-in-out;
+  overflow: hidden;
+}
 
-  }
+.plus {
+  position: absolute;
+  top: 0;
+  right: -20px;
+  transition: 0.3s ease-in-out;
+}
 
-  .sous-element p{
-    font-size: 12px;
-  }
+.plus :hover {
+  transform: scale(1.2);
+}
 
-  .sous-element :hover{
-    transform: scale(1.1);
-  }
+.sous-element {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  transition: 0.3s ease-in-out;
 
-  /* Styles pour l'état "clicked" des .sous-element */
+}
+
+.sous-element p {
+  font-size: 12px;
+}
+
+.sous-element :hover {
+  transform: scale(1.1);
+}
+
+/* Styles pour l'état "clicked" des .sous-element */
 .sous-element.clicked img {
-    transform: scale(0.85); /* Réduire la taille de l'image */
-    filter: grayscale(100%); /* Appliquer un filtre en niveaux de gris */
-    transition: transform 0.3s ease, filter 0.3s ease; /* Transition fluide */
-  }
-  
-  .sous-element.clicked p {
-    opacity: 0.2; /* Réduire l'opacité du texte */
-    transition: opacity 0.3s ease; /* Transition fluide pour l'effet d'opacité */
-  }
-  
-  /* Transitions par défaut */
-  .sous-element img,
-  .sous-element p {
-    transition: all 0.3s ease;
-  }
-  
-  /* Styles normaux (facultatifs pour une base propre) */
-  .sous-element {
-    cursor: pointer; /* Change le curseur pour indiquer que c'est cliquable */
-  }
-  
-  
+  transform: scale(0.85);
+  /* Réduire la taille de l'image */
+  filter: grayscale(100%);
+  /* Appliquer un filtre en niveaux de gris */
+  transition: transform 0.3s ease, filter 0.3s ease;
+  /* Transition fluide */
+}
+
+.sous-element.clicked p {
+  opacity: 0.2;
+  /* Réduire l'opacité du texte */
+  transition: opacity 0.3s ease;
+  /* Transition fluide pour l'effet d'opacité */
+}
+
+/* Transitions par défaut */
+.sous-element img,
+.sous-element p {
+  transition: all 0.3s ease;
+}
+
+/* Styles normaux (facultatifs pour une base propre) */
+.sous-element {
+  cursor: pointer;
+  /* Change le curseur pour indiquer que c'est cliquable */
+}
+
+
 
 .buttonsubmit2 {
   margin-top: 6px;
@@ -340,6 +356,7 @@ option {
 .comparaisonZone {
   margin-top: 16px;
 }
+
 .comparaisonInput {
   margin-top: 14px;
 }
@@ -443,7 +460,7 @@ h1 {
   padding-left: 5px;
   padding-right: 5px;
   border-radius: 4px;
-  padding: 5px 10px; 
+  padding: 5px 10px;
   font-size: 24px;
   font-weight: bold;
   border: 1px solid var(--black);
@@ -496,7 +513,8 @@ h1 {
   left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none; /* Empêche les interactions avec les gouttes */
+  pointer-events: none;
+  /* Empêche les interactions avec les gouttes */
   overflow: hidden;
   z-index: 1;
 }
@@ -505,7 +523,8 @@ h1 {
   position: absolute;
   width: 5px;
   height: 15px;
-  background-color: rgba(223, 28, 45, 0.7); /* Rouge translucide */
+  background-color: rgba(223, 28, 45, 0.7);
+  /* Rouge translucide */
   border-radius: 50%;
   animation: fall linear infinite;
 }
@@ -515,6 +534,7 @@ h1 {
     transform: translateY(-100px);
     opacity: 0.8;
   }
+
   100% {
     transform: translateY(100vh);
     opacity: 0;

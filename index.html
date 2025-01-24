@@ -1,405 +1,243 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Datavisualition crimes en France</title>
-    <link rel="stylesheet" href="style.css" />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
-    />
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""
-    ></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.Default.css"
-    />
-    <link
-      rel="icon"
-      type="image/x-icon"
-      href="./images/logocrimes-removebg-preview.png"
-    />
 
-    <script src="https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster.js"></script>
-  </head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datavisualition crimes en France</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.Default.css">
+  <link rel="icon" type="image/x-icon" href="./images/logocrimes-removebg-preview.png">
 
-  <body>
-    <div id="loader" class="loader">
-      <div class="progress-container">
-        <div id="progress-bar" class="progress-bar"></div>
+  <script src="https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster.js"></script>
+</head>
+
+<body>
+  <div id="loader" class="loader">
+    <div class="progress-container">
+      <div id="progress-bar" class="progress-bar"></div>
+    </div>
+    Chargement en cours...
+  </div>
+
+  <div class="rain-container"></div>
+
+  <div class="leftbar">
+    <h2>Filtrer</h2>
+
+    <div class="inputs">
+      <div class="regionInput">
+        <label for="departement">Par région :</label>
+        <div class="select-container">
+          <select name="region" id="region">
+            <option value="">Choisissez une région</option>
+          </select>
+          <img src="./images/chevron.svg" alt="Chevron" class="chevron">
+        </div>
       </div>
-      Chargement en cours...
+
+      <div class="departementInput" id="departementInput">
+        <label for="departement">Par département :</label>
+        <div class="select-container">
+          <select name="departement" id="departement">
+            <option value="">Choisissez un département</option>
+          </select>
+          <img src="./images/chevron.svg" alt="Chevron" class="chevron">
+        </div>
+      </div>
+
+      <div class="villeInput" id="villeInput">
+        <label for="ville">Par ville :</label>
+        <div class="select-container">
+          <input type="text" name="ville" class="ipville" id="ville" list="ville-options"
+            placeholder="Choisissez une ville">
+          <datalist id="ville-options"></datalist>
+        </div>
+      </div>
+
+      <div class="yearInput">
+        <label for="years">Par année :</label>
+        <div class="select-container">
+          <select name="years" id="years">
+            <option value="">Choisissez une date</option>
+          </select>
+          <img src="./images/chevron.svg" alt="Chevron" class="chevron">
+        </div>
+      </div>
+
+      <button type="submit" id="buttonsubmit" class="buttonsubmit">
+        Rechercher
+      </button>
     </div>
 
-    <div class="rain-container"></div>
-
-    <div class="leftbar">
-      <h2>Filtrer</h2>
-
-      <div class="inputs">
-        <div class="regionInput">
-          <label for="departement">Par région :</label>
-          <div class="select-container">
-            <select name="region" id="region">
-              <option value="">Choisissez une région</option>
-            </select>
-            <img src="./images/chevron.svg" alt="Chevron" class="chevron" />
-          </div>
-        </div>
-
-        <div class="departementInput" id="departementInput">
-          <label for="departement">Par département :</label>
-          <div class="select-container">
-            <select name="departement" id="departement">
-              <option value="">Choisissez un département</option>
-            </select>
-            <img src="./images/chevron.svg" alt="Chevron" class="chevron" />
-          </div>
-        </div>
-
-        <div class="villeInput" id="villeInput">
-          <label for="ville">Par ville :</label>
-          <div class="select-container">
-            <input
-              type="text"
-              name="ville"
-              class="ipville"
-              id="ville"
-              list="ville-options"
-              placeholder="Choisissez une ville"
-            />
-            <datalist id="ville-options"></datalist>
-          </div>
-        </div>
-
-        <div class="yearInput">
-          <label for="years">Par année :</label>
-          <div class="select-container">
-            <select name="years" id="years">
-              <option value="">Choisissez une date</option>
-            </select>
-            <img src="./images/chevron.svg" alt="Chevron" class="chevron" />
-          </div>
-        </div>
-
-        <button type="submit" id="buttonsubmit" class="buttonsubmit">
-          Rechercher
-        </button>
-      </div>
-
-      <div class="typesCrimesInput">
-        <label>Types de crimes :</label>
-        <div class="typesCrimesInput2">
-          <div class="cercle-container">
-            <div class="cerclerow" data-checkbox-id="groupeDrugs">
-              <div class="cercle">
-                <img
-                  src="./images/legendes/drugs-drug-svgrepo-com.svg"
-                  alt="Icone drogues"
-                />
-              </div>
-              <label class="textLegend" for="drugs">Drogues</label>
-              <input
-                type="checkbox"
-                id="groupeDrugs"
-                class="crimeTypeCheckbox"
-                value="groupeDrugs"
-              />
-              <div class="plus plus1">
-                <img src="./images/info-circle-svgrepo-com.svg" alt="info" />
-              </div>
+    <div class="typesCrimesInput">
+      <label>Types de crimes :</label>
+      <div class="typesCrimesInput2">
+        <div class="cercle-container">
+          <div class="cerclerow" data-checkbox-id="groupeDrugs">
+            <div class="cercle">
+              <img src="./images/legendes/drugs-drug-svgrepo-com.svg" alt="Icone drogues">
             </div>
-            <div class="infoplus infoplus1">
-              <div class="sous-element" id="sousel1" data-checkbox-id="drugs">
-                <img src="./images/legendes2/drugs2.png" alt="Icone drogues" />
-                <p>Trafic de drogues</p>
-                <input
-                  type="checkbox"
-                  id="drugs"
-                  class="crimeTypeCheckbox"
-                  value="drugs"
-                  checked
-                />
-              </div>
-
-              <div
-                class="sous-element"
-                id="sousel2"
-                data-checkbox-id="drugsusages"
-              >
-                <img
-                  src="./images/legendes2/drugsusages.png"
-                  alt="Icone drogues"
-                />
-                <p>Usages de drogues</p>
-                <input
-                  type="checkbox"
-                  id="drugsusages"
-                  class="crimeTypeCheckbox"
-                  value="drugsusages"
-                  checked
-                />
-              </div>
+            <label class="textLegend" for="drugs">Drogues</label>
+            <input type="checkbox" id="groupeDrugs" class="crimeTypeCheckbox" value="groupeDrugs">
+            <div class="plus plus1">
+              <img src="./images/info-circle-svgrepo-com.svg" alt="info">
             </div>
           </div>
-
-          <div class="cercle-container">
-            <div class="cerclerow" data-checkbox-id="groupeViolences">
-              <div class="cercle">
-                <img
-                  src="./images/legendes/sexual-harassment-teacher-svgrepo-com.svg"
-                  alt="Icone violences sexuelles"
-                />
-              </div>
-              <label class="textLegend" for="sexualViolence">Violences</label>
-
-              <div class="plus plus2">
-                <img src="./images/info-circle-svgrepo-com.svg" alt="info" />
-              </div>
+          <div class="infoplus infoplus1">
+            <div class="sous-element" id="sousel1" data-checkbox-id="drugs">
+              <img src="./images/legendes2/drugs2.png" alt="Icone drogues">
+              <p>Trafic de drogues</p>
+              <input type="checkbox" id="drugs" class="crimeTypeCheckbox" value="drugs" checked>
             </div>
-            <div class="infoplus infoplus2">
-              <div class="sous-element" data-checkbox-id="sexualViolence">
-                <img
-                  src="./images/legendes2/sexualviolences2.png"
-                  alt="Icone coups"
-                />
-                <p>Violences sexuelles</p>
-                <input
-                  type="checkbox"
-                  id="sexualViolence"
-                  class="crimeTypeCheckbox"
-                  value="sexualViolence"
-                  checked
-                />
-              </div>
 
-              <div class="sous-element" data-checkbox-id="violence">
-                <img
-                  src="./images/legendes2/harassment2.png"
-                  alt="Icone coups"
-                />
-                <p>Coups et blessures volontaires</p>
-                <input
-                  type="checkbox"
-                  id="violence"
-                  class="crimeTypeCheckbox"
-                  value="violence"
-                  checked
-                />
-              </div>
-
-              <div class="sous-element" data-checkbox-id="violencefamily">
-                <img
-                  src="./images/legendes2/familyviolences.png"
-                  alt="Icone coups"
-                />
-                <p>Coups volontaires intrafamiliaux</p>
-                <input
-                  type="checkbox"
-                  id="violencefamily"
-                  class="crimeTypeCheckbox"
-                  value="violencefamily"
-                  checked
-                />
-              </div>
-
-              <div class="sous-element" data-checkbox-id="otherviolences">
-                <img
-                  src="./images/legendes2/otherinjury.png"
-                  alt="Icone coups"
-                />
-                <p>Autres coups volontaires</p>
-                <input
-                  type="checkbox"
-                  id="otherviolences"
-                  class="crimeTypeCheckbox"
-                  value="otherviolences"
-                  checked
-                />
-              </div>
-            </div>
-          </div>
-
-          <div class="cercle-container">
-            <div class="cerclerow" data-checkbox-id="destruction">
-              <div class="cercle">
-                <img
-                  src="./images/legendes/hammer-drop-svgrepo-com.svg"
-                  alt="Icone destructions"
-                />
-              </div>
-              <label class="textLegend" for="destruction">Destructions</label>
-              <input
-                type="checkbox"
-                id="destruction"
-                class="crimeTypeCheckbox"
-                value="destruction"
-                checked
-              />
-            </div>
-          </div>
-
-          <div class="cercle-container">
-            <div class="cerclerow" data-checkbox-id="groupeSteal">
-              <div class="cercle">
-                <img
-                  src="./images/legendes/theft-crime-steal-thief-svgrepo-com.svg"
-                  alt="Icone vols"
-                />
-              </div>
-              <label class="textLegend" for="steal">Vols</label>
-
-              <div class="plus plus4">
-                <img src="./images/info-circle-svgrepo-com.svg" alt="info" />
-              </div>
-            </div>
-            <div class="infoplus infoplus4">
-              <div class="sous-element" data-checkbox-id="steal">
-                <img
-                  src="./images/legendes2/steal2.png"
-                  alt="Icone vols dans voitures"
-                />
-                <p>Vols de véhicules</p>
-                <input
-                  type="checkbox"
-                  id="steal"
-                  class="crimeTypeCheckbox"
-                  value="steal"
-                  checked
-                />
-              </div>
-
-              <div class="sous-element" data-checkbox-id="stealincar">
-                <img
-                  src="./images/legendes2/stealincar.png"
-                  alt="Icone vols dans voitures"
-                />
-                <p>Vols dans les véhicules</p>
-                <input
-                  type="checkbox"
-                  id="stealincar"
-                  class="crimeTypeCheckbox"
-                  value="stealincar"
-                  checked
-                />
-              </div>
-
-              <div class="sous-element" data-checkbox-id="stealcaraccessories">
-                <img
-                  src="./images/legendes2/steelcaraccessories2.png"
-                  alt="Icone vols d'accéssoires"
-                />
-                <p>Vols d'accéssoires</p>
-                <input
-                  type="checkbox"
-                  id="stealcaraccessories"
-                  class="crimeTypeCheckbox"
-                  value="stealcaraccessories"
-                  checked
-                />
-              </div>
-
-              <div class="sous-element" data-checkbox-id="stealhouses">
-                <img
-                  src="./images/legendes2/stealhouse.png"
-                  alt="Icone dans les maisons"
-                />
-                <p>Vols dans les maisons</p>
-                <input
-                  type="checkbox"
-                  id="stealhouses"
-                  class="crimeTypeCheckbox"
-                  value="stealhouses"
-                  checked
-                />
-              </div>
-
-              <div class="sous-element" data-checkbox-id="stealgun">
-                <img src="./images/legendes2/gun2.png" alt="Icone avec arme" />
-                <p>Vols avec arme</p>
-                <input
-                  type="checkbox"
-                  id="stealgun"
-                  class="crimeTypeCheckbox"
-                  value="stealgun"
-                  checked
-                />
-              </div>
-
-              <div class="sous-element" data-checkbox-id="stealwithoutgun">
-                <img
-                  src="./images/legendes2/stealwithoutgun.png"
-                  alt="Icone sans arme"
-                />
-                <p>Vols sans arme</p>
-                <input
-                  type="checkbox"
-                  id="stealwithoutgun"
-                  class="crimeTypeCheckbox"
-                  value="stealwithoutgun"
-                  checked
-                />
-              </div>
-
-              <div class="sous-element" data-checkbox-id="stealwithoutviolence">
-                <img
-                  src="./images/legendes2/stealwithoutviolence.png"
-                  alt="Icone sans violence"
-                />
-                <p>Vols sans violence</p>
-                <input
-                  type="checkbox"
-                  id="stealwithoutviolence"
-                  class="crimeTypeCheckbox"
-                  value="stealwithoutviolence"
-                  checked
-                />
-              </div>
+            <div class="sous-element" id="sousel2" data-checkbox-id="drugsusages">
+              <img src="./images/legendes2/drugsusages.png" alt="Icone drogues">
+              <p>Usages de drogues</p>
+              <input type="checkbox" id="drugsusages" class="crimeTypeCheckbox" value="drugsusages" checked>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="separator"></div>
+        <div class="cercle-container">
+          <div class="cerclerow" data-checkbox-id="groupeViolences">
+            <div class="cercle">
+              <img src="./images/legendes/sexual-harassment-teacher-svgrepo-com.svg" alt="Icone violences sexuelles">
+            </div>
+            <label class="textLegend" for="sexualViolence">Violences</label>
 
-      <h2 class="comparaisonZone">Comparer</h2>
-      <div class="comparaisonInput">
-        <div class="inputComm" id="inputComm">
-          <label for="">Par communes : </label>
-          <input type="text" id="communes" placeholder="Bordeaux" />
+            <div class="plus plus2">
+              <img src="./images/info-circle-svgrepo-com.svg" alt="info">
+            </div>
+          </div>
+          <div class="infoplus infoplus2">
+            <div class="sous-element" data-checkbox-id="sexualViolence">
+              <img src="./images/legendes2/sexualviolences2.png" alt="Icone coups">
+              <p>Violences sexuelles</p>
+              <input type="checkbox" id="sexualViolence" class="crimeTypeCheckbox" value="sexualViolence" checked>
+            </div>
+
+            <div class="sous-element" data-checkbox-id="violence">
+              <img src="./images/legendes2/harassment2.png" alt="Icone coups">
+              <p>Coups et blessures volontaires</p>
+              <input type="checkbox" id="violence" class="crimeTypeCheckbox" value="violence" checked>
+            </div>
+
+            <div class="sous-element" data-checkbox-id="violencefamily">
+              <img src="./images/legendes2/familyviolences.png" alt="Icone coups">
+              <p>Coups volontaires intrafamiliaux</p>
+              <input type="checkbox" id="violencefamily" class="crimeTypeCheckbox" value="violencefamily" checked>
+            </div>
+
+            <div class="sous-element" data-checkbox-id="otherviolences">
+              <img src="./images/legendes2/otherinjury.png" alt="Icone coups">
+              <p>Autres coups volontaires</p>
+              <input type="checkbox" id="otherviolences" class="crimeTypeCheckbox" value="otherviolences" checked>
+            </div>
+          </div>
         </div>
 
-        <button
-          type="submit"
-          id="validationComparaisonCommunesDashboard"
-          class="buttonsubmit buttonsubmit2"
-        >
-          Ajouter
-        </button>
+        <div class="cercle-container">
+          <div class="cerclerow" data-checkbox-id="destruction">
+            <div class="cercle">
+              <img src="./images/legendes/hammer-drop-svgrepo-com.svg" alt="Icone destructions">
+            </div>
+            <label class="textLegend" for="destruction">Destructions</label>
+            <input type="checkbox" id="destruction" class="crimeTypeCheckbox" value="destruction" checked>
+          </div>
+        </div>
 
-        <div class="villeListContainer">
-          <ul id="villeList" class="villeList"></ul>
+        <div class="cercle-container">
+          <div class="cerclerow" data-checkbox-id="groupeSteal">
+            <div class="cercle">
+              <img src="./images/legendes/theft-crime-steal-thief-svgrepo-com.svg" alt="Icone vols">
+            </div>
+            <label class="textLegend" for="steal">Vols</label>
+
+            <div class="plus plus4">
+              <img src="./images/info-circle-svgrepo-com.svg" alt="info">
+            </div>
+          </div>
+          <div class="infoplus infoplus4">
+            <div class="sous-element" data-checkbox-id="steal">
+              <img src="./images/legendes2/steal2.png" alt="Icone vols dans voitures">
+              <p>Vols de véhicules</p>
+              <input type="checkbox" id="steal" class="crimeTypeCheckbox" value="steal" checked>
+            </div>
+
+            <div class="sous-element" data-checkbox-id="stealincar">
+              <img src="./images/legendes2/stealincar.png" alt="Icone vols dans voitures">
+              <p>Vols dans les véhicules</p>
+              <input type="checkbox" id="stealincar" class="crimeTypeCheckbox" value="stealincar" checked>
+            </div>
+
+            <div class="sous-element" data-checkbox-id="stealcaraccessories">
+              <img src="./images/legendes2/steelcaraccessories2.png" alt="Icone vols d'accessoires">
+              <p>Vols d'accessoires</p>
+              <input type="checkbox" id="stealcaraccessories" class="crimeTypeCheckbox" value="stealcaraccessories"
+                checked>
+            </div>
+
+            <div class="sous-element" data-checkbox-id="stealhouses">
+              <img src="./images/legendes2/stealhouse.png" alt="Icone dans les maisons">
+              <p>Vols dans les maisons</p>
+              <input type="checkbox" id="stealhouses" class="crimeTypeCheckbox" value="stealhouses" checked>
+            </div>
+
+            <div class="sous-element" data-checkbox-id="stealgun">
+              <img src="./images/legendes2/gun2.png" alt="Icone avec arme">
+              <p>Vols avec arme</p>
+              <input type="checkbox" id="stealgun" class="crimeTypeCheckbox" value="stealgun" checked>
+            </div>
+
+            <div class="sous-element" data-checkbox-id="stealwithoutgun">
+              <img src="./images/legendes2/stealwithoutgun.png" alt="Icone sans arme">
+              <p>Vols sans arme</p>
+              <input type="checkbox" id="stealwithoutgun" class="crimeTypeCheckbox" value="stealwithoutgun" checked>
+            </div>
+
+            <div class="sous-element" data-checkbox-id="stealwithoutviolence">
+              <img src="./images/legendes2/stealwithoutviolence.png" alt="Icone sans violence">
+              <p>Vols sans violence</p>
+              <input type="checkbox" id="stealwithoutviolence" class="crimeTypeCheckbox" value="stealwithoutviolence"
+                checked>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <main>
-      <div id="map"></div>
-    </main>
+    <div class="separator"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
-    <script src="./data.js"></script>
-    <script src="./front.js"></script>
-  </body>
+    <h2 class="comparaisonZone">Comparer</h2>
+    <div class="comparaisonInput">
+      <div class="inputComm" id="inputComm">
+        <label for="communes">Par communes : </label>
+        <input type="text" id="communes" placeholder="Bordeaux">
+      </div>
+
+      <button type="submit" id="validationComparaisonCommunesDashboard" class="buttonsubmit buttonsubmit2">
+        Ajouter
+      </button>
+
+      <div class="villeListContainer">
+        <ul id="villeList" class="villeList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <div id="map"></div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+  <script src="./data.js"></script>
+</body>
+
 </html>

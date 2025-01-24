@@ -92,30 +92,9 @@ document.querySelectorAll(".plus4").forEach((plusElement) => {
   });
 });
 
-const cercleContainers = document.querySelectorAll(".cercle-container");
 
-// Appliquer un effet de gris (grayscale) et un effet de mise à l'échelle (scale) sur les images quand le conteneur est cliqué
-cercleContainers.forEach((container) => {
-  const image = container.querySelector("img"); // Sélectionner l'image à l'intérieur du conteneur
 
-  // Quand le conteneur est cliqué
-  container.addEventListener("click", () => {
-    // Alterner la classe "clicked" pour appliquer ou retirer les effets
-    container.classList.toggle("clicked");
-  });
-});
 
-document.querySelectorAll('.cerclerow').forEach(cerclerow => {
-  cerclerow.addEventListener('click', () => {
-    cerclerow.classList.toggle('clicked');
-  });
-});
-
-document.querySelectorAll('.sous-element').forEach(sousElement => {
-  sousElement.addEventListener('click', () => {
-    sousElement.classList.toggle('clicked');
-  });
-});
 
 // Function to load and parse a CSV
 async function loadCSV(filePath) {
@@ -560,77 +539,48 @@ async function initDataOptionsInInputs() {
     resetMapMarkers();
   });
 
-  document.querySelectorAll(".cerclerow").forEach((container) => {
-    container.addEventListener("click", () => {
-      const checkboxId = container.getAttribute("data-checkbox-id");
-      const checkbox = document.getElementById(checkboxId);
 
-      // Vérifie que la checkbox du groupe principal existe
-      if (!checkbox) {
-        console.error(`Checkbox avec ID "${checkboxId}" introuvable.`);
-        return;
-      }
+ document.querySelectorAll('.cerclerow').forEach(cerclerow => {
+  cerclerow.addEventListener('click', () => {
+    // Basculer la classe "clicked" sur le cerclerow
+    cerclerow.classList.toggle('clicked');
+    
+    // Trouver l'élément .infoplus associé (frère suivant)
+    const infoplus = cerclerow.nextElementSibling; // Recherche du frère suivant
+    if (infoplus && infoplus.classList.contains('infoplus')) {
+      // Vérifier si le cerclerow a la classe "clicked"
+      const isClicked = cerclerow.classList.contains('clicked');
+      
+      // Basculer l'état des checkboxes des sous-éléments
+      infoplus.querySelectorAll('.sous-element').forEach(sousElement => {
+        const checkbox = sousElement.querySelector('input[type="checkbox"]');
+        if (checkbox) {
+          sousElement.classList.toggle('clicked', isClicked);
+          checkbox.checked = !isClicked;
+        }
 
-      // Basculer immédiatement l'état du groupe principal
-      const isChecked = !checkbox.checked;
-      checkbox.checked = isChecked;
-
-      // Mettre à jour la classe "selected" pour le groupe principal
-      container.classList.toggle("selected", isChecked);
-
-      // Trouver les sous-éléments associés
-      const infoplus = container.nextElementSibling; // Conteneur des sous-éléments
-      if (infoplus && infoplus.classList.contains("infoplus")) {
-        // Met à jour immédiatement l'état de tous les sous-éléments
-        infoplus.querySelectorAll(".sous-element").forEach((subElement) => {
-          const subCheckboxId = subElement.getAttribute("data-checkbox-id");
-          const subCheckbox = document.getElementById(subCheckboxId);
-
-          if (!subCheckbox) {
-            console.error(
-              `Sous-checkbox avec ID "${subCheckboxId}" introuvable.`
-            );
-            return;
-          }
-
-          // Synchronise l'état des sous-checkboxes avec celui du groupe principal
-          subCheckbox.checked = isChecked;
-
-          // Mettre à jour immédiatement l'apparence visuelle des sous-éléments
-          subElement.classList.toggle("selected", isChecked);
-        });
-      }
-
-      // Appeler handleSubmit si nécessaire
+      });
       handleSubmit();
+    }
+  });
+});
+
+  
+  document.querySelectorAll('.sous-element').forEach(sousElement => {
+    sousElement.addEventListener('click', event => {
+      event.stopPropagation(); // Empêcher la propagation du clic vers .cerclerow
+      sousElement.classList.toggle('clicked');
+  
+      // Basculer la case à cocher associée
+      const checkbox = sousElement.querySelector('input[type="checkbox"]');
+      if (checkbox) {
+        checkbox.checked = !checkbox.checked;
+      }
+      handleSubmit();
+
     });
   });
 
-  // Gestion indépendante des sous-éléments
-  document.querySelectorAll(".sous-element").forEach((subElement) => {
-    subElement.addEventListener("click", (event) => {
-      const checkboxId = subElement.getAttribute("data-checkbox-id");
-      const checkbox = document.getElementById(checkboxId);
-
-      // Vérifie que la sous-checkbox existe
-      if (!checkbox) {
-        console.error(`Checkbox avec ID "${checkboxId}" introuvable.`);
-        return;
-      }
-
-      // Basculer immédiatement l'état de la sous-checkbox
-      checkbox.checked = !checkbox.checked;
-
-      // Mettre à jour immédiatement l'apparence visuelle du sous-élément
-      subElement.classList.toggle("selected", checkbox.checked);
-
-      // Empêcher la propagation pour éviter d'activer le groupe parent
-      event.stopPropagation();
-
-      // Appeler handleSubmit si nécessaire
-      handleSubmit();
-    });
-  });
 
 
 

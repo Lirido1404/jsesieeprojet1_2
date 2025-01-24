@@ -885,25 +885,19 @@ const createRecapOnLeaflet = (crimes) => {
   const selectyears = document.getElementById("years");
   const selectedYear = selectyears.value;
 
-  let checkboxeschecked = getSelectedCrimeTypes();
-
-  let filteredCrimesbis = crimes.filter(crime => {
-    return (
-      (checkboxeschecked.length > 0 ? checkboxeschecked.includes(crime.classe) : true)
-    );
-  });
-
-  console.log(filteredCrimesbis);
-
-
-
-
   console.log(crimes);
 
   let annees = listeAnneeCrimes(crimes);
   console.log(annees);
 
   let filteredCrimes = selectedYear ? crimes.filter(crime => crime.annee == selectedYear) : crimes;
+
+  const selectedCrimeTypes = getSelectedCrimeTypes();
+  if (selectedCrimeTypes.length > 0) {
+    filteredCrimes = filteredCrimes.filter((crime) =>
+      selectedCrimeTypes.includes(iconMapping[crime.classe])
+    );
+  }
 
   let crimeTotals = {
     "Coups et blessures volontaires": 0,
